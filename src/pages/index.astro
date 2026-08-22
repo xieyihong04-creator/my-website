@@ -1,71 +1,55 @@
 ---
-// 1. 导入布局组件
+// 导入布局
 import Layout from '../layouts/Layout.astro';
 
-// 2. 导入您的个人数据和网站配置
+// 导入组件
+import Navbar from '../components/sections/Navbar.astro';
+import Hero from '../components/sections/Hero.astro';
+import Footer from '../components/sections/Footer.astro';
+
+// 导入数据
 import profile from '../../content/profile.json';
 import site from '../../content/site.json';
 ---
 
-// 3. 使用 Layout 包裹页面，并设置动态标题
 <Layout title={site.title.zh}>
-  <main class="container">
-    <header class="hero">
-      <h1>{profile.name.zh}</h1>
-      <p class="tagline">{profile.tagline.zh}</p>
-    </header>
-    
-    <section class="bio">
+  <!-- 导航栏 -->
+  <Navbar />
+  
+  <!-- 英雄区 -->
+  <Hero profile={profile} />
+  
+  <!-- 关于我区域 -->
+  <section class="section about">
+    <div class="container">
+      <h2>关于我</h2>
       <p>{profile.bio.zh}</p>
-    </section>
-
-    <section class="social">
-      <a href={profile.social.github} target="_blank" rel="noopener noreferrer">我的 GitHub</a>
-      <a href={`mailto:${profile.social.email}`}>发送邮件</a>
-    </section>
-  </main>
+    </div>
+  </section>
+  
+  <!-- 页脚 -->
+  <Footer site={site} />
 </Layout>
 
-// 4. 页面专属样式 (让页面看起来更美观)
 <style>
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
+  .section {
     padding: 4rem 1rem;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
     text-align: center;
-    font-family: system-ui, -apple-system, sans-serif;
   }
-  .hero h1 {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    color: #1a1a1a;
-  }
-  .tagline {
-    font-size: 1.25rem;
-    color: #666;
-    margin-bottom: 2rem;
-  }
-  .bio {
+  .about p {
     font-size: 1.1rem;
-    line-height: 1.6;
+    line-height: 1.8;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
     color: #444;
-    margin-bottom: 2.5rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .social a {
-    display: inline-block;
-    margin: 0 10px;
-    padding: 10px 20px;
-    background-color: #0070f3;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: background-color 0.2s;
-  }
-  .social a:hover {
-    background-color: #0051a8;
   }
 </style>
