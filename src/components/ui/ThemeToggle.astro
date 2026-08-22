@@ -1,0 +1,26 @@
+---
+---
+<button aria-label="Toggle theme" data-theme-toggle class="p-2 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-secondary)] transition-colors">
+  <span data-theme-icon>◐</span>
+</button>
+
+<script>
+  const key = 'theme';
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(theme: string) {
+    const isDark = theme === 'dark' || (theme === 'auto' && mql.matches);
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+  }
+  const saved = localStorage.getItem(key) || 'auto';
+  apply(saved);
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cur = localStorage.getItem(key) || 'auto';
+      const next = cur === 'dark' ? 'light' : cur === 'light' ? 'auto' : 'dark';
+      localStorage.setItem(key, next);
+      apply(next);
+    });
+  });
+  mql.addEventListener('change', ()=>{ if((localStorage.getItem(key)||'auto')==='auto') apply('auto'); });
+</script>

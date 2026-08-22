@@ -1,0 +1,20 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  href: string;
+  date: Date;
+  cta?: string;
+  publishedLabel?: string;
+}
+const { title, description, href, date, cta = '阅读全文', publishedLabel = '发布于' } = Astro.props;
+const dateStr = date.toLocaleDateString(cta === '阅读全文' ? 'zh-CN' : 'en-US');
+---
+<article class="border border-[var(--color-border)] rounded-xl p-6 hover:shadow-md hover:border-[var(--color-accent)]/30 transition-all">
+  <h3 class="text-lg font-semibold mb-2 line-clamp-1"><a href={href} class="hover:text-[var(--color-accent)]">{title}</a></h3>
+  <p class="text-sm text-[var(--color-text-secondary)] mb-3 line-clamp-2">{description}</p>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-[var(--color-text-muted)]">{publishedLabel} {dateStr}</span>
+    <a href={href} class="text-sm text-[var(--color-accent)] hover:opacity-80">{cta} →</a>
+  </div>
+</article>

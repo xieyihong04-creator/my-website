@@ -1,0 +1,25 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  tags: string[];
+  href: string;
+  link?: string;
+  cta?: string;
+}
+const { title, description, tags, href, link, cta = '查看项目' } = Astro.props;
+---
+<article class="group border border-[var(--color-border)] rounded-2xl overflow-hidden bg-[var(--color-bg)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+  <div class="h-36 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity"></div>
+  <div class="p-6 flex flex-col flex-1">
+    <h3 class="text-lg font-semibold mb-2 line-clamp-1">{title}</h3>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-4 line-clamp-2 flex-1">{description}</p>
+    <div class="flex flex-wrap gap-2 mb-4">
+      {tags.map((tag) => <span class="text-xs px-2 py-1 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-full">{tag}</span>)}
+    </div>
+    <div class="flex items-center gap-3">
+      <a href={href} class="text-sm font-medium text-[var(--color-accent)] group-hover:opacity-80">{cta} →</a>
+      {link && <a href={link} target="_blank" rel="noopener" class="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)]">GitHub</a>}
+    </div>
+  </div>
+</article>

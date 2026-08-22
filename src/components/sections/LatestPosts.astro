@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import PostCard from '../ui/PostCard.astro';
+import zh from '../../../content/i18n/zh.json';
+import en from '../../../content/i18n/en.json';
+
+export interface Props { locale: 'zh' | 'en'; }
+const { locale } = Astro.props;
+const t = locale === 'zh' ? zh : en;
+const posts = (await getCollection('posts')).sort((a,b)=>b.data.date.getTime()-a.data.date.getTime()).slice(0,3);
+---
+<section class="section py-20 md:py-28">
+  <div class="container">
+    <div class="flex items-end justify-between mb-10">
+      <h2 class="text-2xl md:text-3xl font-display font-bold">{t.home.latest_posts}</h2>
+      <a href={locale==='zh'?'/zh/blog':'/blog'} class="text-sm font-medium text-[var(--color-accent)] hover:opacity-80">{t.home.view_all} →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {posts.map(p=>{
+        const slug = p.id.replace(/\.md$/,'');
+        return <PostCard title={p.data.title[locale]} description={p.data.description[locale]} href={locale==='zh'?`/zh/blog/${slug}`:`/blog/${slug}`} date={p.data.date} cta={t.blog.read_more} publishedLabel={t.blog.published_on} />
+      })}
+    </div>
+  </div>
+</section>

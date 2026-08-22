@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/sections/Navbar.astro';
+import Footer from '../../components/sections/Footer.astro';
+import profile from '../../../content/profile.json';
+const locale = 'en' as const;
+---
+
+<BaseLayout title="Contact" locale={locale} description="Get in touch">
+  <Navbar locale={locale} />
+  <main class="container py-24 md:py-32 max-w-2xl text-center">
+    <h1 class="text-3xl md:text-4xl font-display font-bold mb-6">Contact</h1>
+    <p class="text-[var(--color-text-secondary)] mb-8">Feel free to reach out via</p>
+    <div class="flex flex-col gap-3 items-center">
+      <a href={profile.social.github} target="_blank" rel="noopener" class="px-6 py-3 border border-[var(--color-border)] rounded-xl hover:bg-[var(--color-bg-secondary)]">GitHub →</a>
+      <a href={`mailto:${profile.social.email}`} class="px-6 py-3 bg-[var(--color-accent)] text-white rounded-xl">Email: {profile.social.email}</a>
+    </div>
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>

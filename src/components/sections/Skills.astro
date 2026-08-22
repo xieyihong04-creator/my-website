@@ -1,0 +1,27 @@
+---
+import skillsData from '../../../content/skills/skills.json';
+import zh from '../../../content/i18n/zh.json';
+import en from '../../../content/i18n/en.json';
+
+export interface Props { locale: 'zh' | 'en'; }
+const { locale } = Astro.props;
+const t = locale === 'zh' ? zh : en;
+const levelOpacity: Record<string,string> = { expert: 'opacity-100', proficient: 'opacity-80', familiar: 'opacity-60' };
+---
+<section class="section py-20 md:py-28 bg-[var(--color-bg-secondary)] border-y border-[var(--color-border)]">
+  <div class="container">
+    <h2 class="text-2xl md:text-3xl font-display font-bold text-center mb-12">{locale==='zh' ? '技能' : 'Skills'}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {skillsData.categories.map(cat=>(
+        <div class="bg-[var(--color-bg)] border border-[var(--color-border)] rounded-2xl p-6">
+          <h3 class="font-semibold mb-4">{cat.name[locale]}</h3>
+          <div class="flex flex-wrap gap-2">
+            {cat.items.map(item=>(
+              <span class={`text-sm px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-secondary)] ${levelOpacity[item.level]||'opacity-70'}`}>{item.name}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

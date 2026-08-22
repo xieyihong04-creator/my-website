@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '../../components/sections/Navbar.astro';
 import Footer from '../../components/sections/Footer.astro';
+import AboutTimeline from '../../components/sections/AboutTimeline.astro';
 import profile from '../../../content/profile.json';
 import en from '../../../content/i18n/en.json';
 const locale = 'en' as const;
@@ -11,10 +12,16 @@ const t = en;
 <BaseLayout title={t.about.title} locale={locale} description={profile.bio.en}>
   <Navbar locale={locale} />
   <main class="container py-24 md:py-32 max-w-3xl">
-    <h1 class="text-3xl md:text-4xl font-display font-bold mb-6">{t.about.title}</h1>
-    <p class="text-[var(--color-text-secondary)] leading-relaxed">{profile.bio.en}</p>
-    <h2 class="text-2xl font-semibold mt-12 mb-4">{t.about.journey_title}</h2>
-    <p class="text-[var(--color-text-secondary)]">This page will showcase the journey. Content can be expanded from profile and skills.</p>
+    <div class="flex flex-col md:flex-row gap-8 items-start mb-12">
+      <img src={profile.avatar} alt={profile.name.en} class="w-32 h-32 rounded-full object-cover border border-[var(--color-border)]" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 hidden items-center justify-center text-white text-3xl font-bold">{profile.name.en.charAt(0)}</div>
+      <div class="flex-1">
+        <h1 class="text-3xl md:text-4xl font-display font-bold mb-4">{t.about.title}</h1>
+        <p class="text-[var(--color-text-secondary)] leading-relaxed">{profile.bio.en}</p>
+      </div>
+    </div>
+    <h2 class="text-2xl font-semibold mb-6">{t.about.journey_title}</h2>
+    <AboutTimeline locale={locale} />
   </main>
   <Footer locale={locale} />
 </BaseLayout>

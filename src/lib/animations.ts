@@ -1,12 +1,23 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+export function initLenis() {
+  if (typeof window === 'undefined') return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lenis = new Lenis({ autoRaf: true, lerp: 0.08 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
 export function initScrollAnimations() {
   if (typeof window === 'undefined') return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const elements = document.querySelectorAll('.animate-on-scroll');
   
   elements.forEach((element) => {
@@ -30,6 +41,7 @@ export function initScrollAnimations() {
 
 export function initHeroAnimation() {
   if (typeof window === 'undefined') return undefined;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
   const tl = gsap.timeline();
   
   tl.from('.hero-title', {

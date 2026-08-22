@@ -23,7 +23,7 @@
   --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode (optional) */
+/* Dark Mode (auto + manual) */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg: #0a0a0a;
@@ -33,6 +33,22 @@
     --color-text-muted: #737373;
     --color-border: #262626;
   }
+}
+[data-theme="dark"] {
+  --color-bg: #0a0a0a;
+  --color-bg-secondary: #111111;
+  --color-text: #fafafa;
+  --color-text-secondary: #a3a3a3;
+  --color-text-muted: #737373;
+  --color-border: #262626;
+}
+[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #666666;
+  --color-text-muted: #999999;
+  --color-border: #e5e5e5;
 }
 
 /* Base Styles - Tailwind preflight already resets, avoid duplicate * reset */

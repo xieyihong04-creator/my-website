@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Navbar from '../../../components/sections/Navbar.astro';
 import Footer from '../../../components/sections/Footer.astro';
+import ReadingProgress from '../../../components/ui/ReadingProgress.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -20,6 +21,7 @@ const t = zh;
 ---
 
 <BaseLayout title={post.data.title[locale]} locale={locale} description={post.data.description[locale]}>
+  <ReadingProgress />
   <Navbar locale={locale} />
   <main class="container py-24 md:py-32 max-w-3xl">
     <a href="/zh/blog" class="text-sm text-[var(--color-text-secondary)] mb-8 inline-block">← {t.blog.back_to_blog}</a>

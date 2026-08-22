@@ -9,6 +9,8 @@ export interface Props {
 
 import siteConfig from '../../content/site.json';
 import profile from '../../content/profile.json';
+import { ClientRouter } from 'astro:transitions';
+import { jsonLdWebsite, jsonLdPerson } from '../lib/seo';
 
 const {
   title,
@@ -21,6 +23,12 @@ const {
 const siteTitle = locale === 'zh' ? siteConfig.title.zh : siteConfig.title.en;
 const authorName = locale === 'zh' ? profile.name.zh : profile.name.en;
 const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
+const otherLocale = locale === 'zh' ? 'en' : 'zh';
+const otherLocaleHref = locale === 'zh' ? canonicalURL.replace('/zh', '') || '/' : canonicalURL.replace(Astro.url.origin, `${Astro.url.origin}/zh`);
+const websiteJsonLd = jsonLdWebsite(locale, siteTitle, description, canonicalURL);
+const personJsonLd = jsonLdPerson(authorName, new URL('/', Astro.site || Astro.url.origin).href);
+let ogImageUrl: string;
+try { ogImageUrl = new URL(image, Astro.url.origin).href; } catch { ogImageUrl = new URL('/favicon.svg', Astro.url.origin).href; }
 ---
 
 <!doctype html>
@@ -31,13 +39,16 @@ const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
-    
+    <link rel="alternate" hreflang="zh" href={locale === 'zh' ? canonicalURL : new URL(`/zh${Astro.url.pathname}`, Astro.url.origin).href} />
+    <link rel="alternate" hreflang="en" href={locale === 'en' ? canonicalURL : canonicalURL.replace('/zh','')} />
+    <link rel="alternate" hreflang="x-default" href={canonicalURL.replace('/zh','')} />
+    <ClientRouter />
     <!-- Open Graph -->
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={locale === 'zh' ? 'zh_CN' : 'en_US'} />
-    <meta property="og:image" content={new URL(image, Astro.url.origin).href} />
+    <meta property="og:image" content={ogImageUrl} />
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -54,9 +65,18 @@ const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     
     <title>{fullTitle}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
   </head>
   <body>
     <slot />
+    <script>
+      import { initLenis, initScrollAnimations } from '../lib/animations';
+      const run = () => { initLenis(); initScrollAnimations(); };
+      run();
+      document.addEventListener('astro:page-load', run);
+      document.addEventListener('astro:after-swap', run);
+    </script>
   </body>
 </html>
 

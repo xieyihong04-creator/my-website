@@ -10,6 +10,7 @@ import siteConfig from '../../../content/site.json';
 import profile from '../../../content/profile.json';
 import zh from '../../../content/i18n/zh.json';
 import en from '../../../content/i18n/en.json';
+import ThemeToggle from '../ui/ThemeToggle.astro';
 const t = locale === 'zh' ? zh : en;
 const displayName = locale === 'zh' ? profile.name.zh : profile.name.en;
 
@@ -47,6 +48,7 @@ const navItems = siteConfig.navigation.map(item => ({
       >
         <span>{locale === 'zh' ? 'English' : '中文'}</span>
       </a>
+      <ThemeToggle />
     </div>
     
     <!-- Mobile Menu Button -->
@@ -86,6 +88,7 @@ const navItems = siteConfig.navigation.map(item => ({
       >
         🌐 {locale === 'zh' ? 'English' : '中文'}
       </a>
+      <div class="pt-2"><ThemeToggle /></div>
     </div>
   </div>
 </nav>

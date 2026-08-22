@@ -1,0 +1,16 @@
+---
+---
+<div data-reading-progress class="fixed top-0 left-0 h-0.5 bg-[var(--color-accent)] w-0 z-[60] transition-[width] duration-150"></div>
+<script>
+  const bar = document.querySelector('[data-reading-progress]') as HTMLElement | null;
+  const onScroll = () => {
+    if(!bar) return;
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    bar.style.width = pct + '%';
+  };
+  document.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('astro:page-load', onScroll);
+  onScroll();
+</script>

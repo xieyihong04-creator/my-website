@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://xieyihong04-creator.github.io/my-website/sitemap-index.xml

@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from '../ui/ProjectCard.astro';
+import zh from '../../../content/i18n/zh.json';
+import en from '../../../content/i18n/en.json';
+
+export interface Props { locale: 'zh' | 'en'; }
+const { locale } = Astro.props;
+const t = locale === 'zh' ? zh : en;
+const all = await getCollection('projects');
+let projects = all.filter(p => p.data.featured).sort((a,b)=>a.data.order-b.data.order);
+if (projects.length < 2) projects = [...all].sort((a,b)=>a.data.order-b.data.order).slice(0,2);
+else projects = projects.slice(0,2);
+---
+<section class="section py-20 md:py-28 border-t border-[var(--color-border)]/50">
+  <div class="container">
+    <div class="flex items-end justify-between mb-10">
+      <h2 class="text-2xl md:text-3xl font-display font-bold">{t.home.featured_projects}</h2>
+      <a href={locale==='zh'?'/zh/projects':'/projects'} class="text-sm font-medium text-[var(--color-accent)] hover:opacity-80">{t.home.view_all} →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      {projects.map(p=>{
+        const slug = p.id.replace(/\.md$/,'');
+        return <ProjectCard title={p.data.title[locale]} description={p.data.description[locale]} tags={p.data.tags} href={locale==='zh'?`/zh/projects/${slug}`:`/projects/${slug}`} link={p.data.link} cta={t.projects.view_project} />
+      })}
+    </div>
+  </div>
+</section>

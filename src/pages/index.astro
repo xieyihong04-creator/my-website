@@ -5,6 +5,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 // 导入组件
 import Navbar from '../components/sections/Navbar.astro';
 import Hero from '../components/sections/Hero.astro';
+import FeaturedProjects from '../components/sections/FeaturedProjects.astro';
+import Skills from '../components/sections/Skills.astro';
+import LatestPosts from '../components/sections/LatestPosts.astro';
 import Footer from '../components/sections/Footer.astro';
 
 // 导入数据
@@ -20,6 +23,15 @@ const locale = 'en' as const;
   
   <!-- 英雄区 -->
   <Hero locale={locale} />
+  
+  <!-- 精选项目 -->
+  <FeaturedProjects locale={locale} />
+  
+  <!-- 技能概览 -->
+  <Skills locale={locale} />
+  
+  <!-- 最新文章 -->
+  <LatestPosts locale={locale} />
   
   <!-- 关于我区域 -->
   <section class="section about">

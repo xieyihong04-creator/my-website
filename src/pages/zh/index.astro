@@ -2,6 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '../../components/sections/Navbar.astro';
 import Hero from '../../components/sections/Hero.astro';
+import FeaturedProjects from '../../components/sections/FeaturedProjects.astro';
+import Skills from '../../components/sections/Skills.astro';
+import LatestPosts from '../../components/sections/LatestPosts.astro';
 import Footer from '../../components/sections/Footer.astro';
 import profile from '../../../content/profile.json';
 import site from '../../../content/site.json';
@@ -11,6 +14,9 @@ const locale = 'zh' as const;
 <BaseLayout title={site.title.zh} locale={locale} description={site.description.zh}>
   <Navbar locale={locale} />
   <Hero locale={locale} />
+  <FeaturedProjects locale={locale} />
+  <Skills locale={locale} />
+  <LatestPosts locale={locale} />
   <section class="section about">
     <div class="container">
       <h2>关于我</h2>
