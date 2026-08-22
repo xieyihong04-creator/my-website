@@ -1,0 +1,95 @@
+---
+export interface Props {
+  locale: 'zh' | 'en';
+}
+
+const { locale } = Astro.props;
+
+// Import profile and translations
+import profile from '../../content/profile.json';
+import zh from '../../content/i18n/zh.json';
+import en from '../../content/i18n/en.json';
+const t = locale === 'zh' ? zh : en;
+
+const name = locale === 'zh' ? profile.name.zh : profile.name.en;
+const tagline = locale === 'zh' ? profile.tagline.zh : profile.tagline.en;
+-->
+
+<section class="hero min-h-screen flex items-center justify-center relative overflow-hidden">
+  <!-- Background Decoration -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-100 dark:bg-blue-900/20 rounded-full blur-3xl opacity-30 animate-on-scroll"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-100 dark:bg-purple-900/20 rounded-full blur-3xl opacity-30 animate-on-scroll"></div>
+  </div>
+  
+  <div class="container relative z-10 text-center">
+    <!-- Avatar -->
+    <div class="mb-8 animate-on-scroll hero-avatar">
+      <div class="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl md:text-5xl font-display font-bold shadow-lg">
+        {name.charAt(0)}
+      </div>
+    </div>
+    
+    <!-- Greeting -->
+    <p class="text-lg md:text-xl text-[var(--color-text-secondary)] mb-4 animate-on-scroll hero-greeting">
+      {locale === 'zh' ? t.hero.zh.greeting : t.hero.en.greeting}
+    </p>
+    
+    <!-- Name -->
+    <h1 class="text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-6 animate-on-scroll hero-title">
+      <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        {name}
+      </span>
+    </h1>
+    
+    <!-- Tagline -->
+    <p class="text-base md:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-12 animate-on-scroll hero-subtitle">
+      {tagline}
+    </p>
+    
+    <!-- CTA Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-on-scroll hero-cta">
+      <a
+        href={locale === 'zh' ? '/zh/projects' : '/projects'}
+        class="inline-flex items-center px-8 py-4 bg-[var(--color-accent)] text-white font-medium rounded-xl hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-blue-500/25"
+      >
+        {locale === 'zh' ? t.hero.zh.cta_primary : t.hero.en.cta_primary}
+        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+      <a
+        href={locale === 'zh' ? '/zh/about' : '/about'}
+        class="inline-flex items-center px-8 py-4 border border-[var(--color-border)] text-[var(--color-text)] font-medium rounded-xl hover:bg-[var(--color-bg-secondary)] transition-all"
+      >
+        {locale === 'zh' ? t.hero.zh.cta_secondary : t.hero.en.cta_secondary}
+      </a>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      <svg class="w-6 h-6 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initHeroAnimation } from '../../lib/animations';
+  
+  // Initialize hero animation on mount
+  if (typeof window !== 'undefined') {
+    initHeroAnimation();
+  }
+</script>
+
+<style>
+  .hero {
+    padding-top: 4rem;
+  }
+  
+  .hero-avatar {
+    will-change: transform, opacity;
+  }
+</style>

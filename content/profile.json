@@ -1,0 +1,17 @@
+{
+  "name": { "zh": "张三", "en": "Zhang San" },
+  "tagline": {
+    "zh": "高中生 / 编程进阶中 / 热爱创造",
+    "en": "High school student / Leveling up in code / Love building things"
+  },
+  "avatar": "/images/avatar.jpg",
+  "bio": {
+    "zh": "我是一名热爱编程的高中生，专注于 Web 开发和创意设计。喜欢探索新技术，享受从零到一构建产品的过程。",
+    "en": "I'm a high school student passionate about programming, focusing on web development and creative design. I love exploring new technologies and enjoy building products from scratch."
+  },
+  "social": {
+    "github": "https://github.com/username",
+    "email": "hello@example.com",
+    "twitter": ""
+  }
+}

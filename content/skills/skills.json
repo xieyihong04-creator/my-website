@@ -1,0 +1,29 @@
+{
+  "categories": [
+    {
+      "name": { "zh": "前端开发", "en": "Frontend Development" },
+      "items": [
+        { "name": "HTML/CSS", "icon": "html5", "level": "expert" },
+        { "name": "JavaScript", "icon": "javascript", "level": "proficient" },
+        { "name": "TypeScript", "icon": "typescript", "level": "proficient" },
+        { "name": "React", "icon": "react", "level": "familiar" },
+        { "name": "Astro", "icon": "astro", "level": "familiar" }
+      ]
+    },
+    {
+      "name": { "zh": "后端开发", "en": "Backend Development" },
+      "items": [
+        { "name": "Node.js", "icon": "nodejs", "level": "familiar" },
+        { "name": "Python", "icon": "python", "level": "familiar" }
+      ]
+    },
+    {
+      "name": { "zh": "工具与其他", "en": "Tools & Others" },
+      "items": [
+        { "name": "Git", "icon": "git", "level": "proficient" },
+        { "name": "Figma", "icon": "figma", "level": "familiar" },
+        { "name": "VS Code", "icon": "vscode", "level": "expert" }
+      ]
+    }
+  ]
+}

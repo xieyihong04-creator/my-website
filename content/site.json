@@ -1,0 +1,17 @@
+{
+  "title": { "zh": "个人作品集", "en": "Portfolio" },
+  "description": {
+    "zh": "高中生编程进阶者的个人作品集网站",
+    "en": "A high school student's programming portfolio"
+  },
+  "navigation": [
+    { "key": "home", "zh": "首页", "en": "Home" },
+    { "key": "about", "zh": "关于我", "en": "About" },
+    { "key": "projects", "zh": "作品集", "en": "Projects" },
+    { "key": "blog", "zh": "博客", "en": "Blog" }
+  ],
+  "footer": {
+    "zh": "© 2026 张三。All rights reserved.",
+    "en": "© 2026 Zhang San. All rights reserved."
+  }
+}

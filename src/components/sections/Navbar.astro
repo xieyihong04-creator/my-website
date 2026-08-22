@@ -1,0 +1,114 @@
+---
+export interface Props {
+  locale: 'zh' | 'en';
+}
+
+const { locale } = Astro.props;
+
+// Import site config and translations
+import siteConfig from '../../content/site.json';
+import zh from '../../content/i18n/zh.json';
+import en from '../../content/i18n/en.json';
+const t = locale === 'zh' ? zh : en;
+
+const navItems = siteConfig.navigation.map(item => ({
+  label: locale === 'zh' ? item.zh : item.en,
+  href: locale === 'zh' ? `/zh${item.key === 'home' ? '/' : `/${item.key}`}` : `/${item.key === 'home' ? '/' : `/${item.key}`}`,
+}));
+---
+
+<nav class="navbar fixed top-0 left-0 right-0 z-50 bg-[var(--color-bg)]/80 backdrop-blur-md border-b border-[var(--color-border)]">
+  <div class="container flex items-center justify-between h-16 md:h-20">
+    <!-- Logo -->
+    <a 
+      href={locale === 'zh' ? '/zh/' : '/'}
+      class="text-xl font-display font-semibold tracking-tight hover:opacity-70 transition-opacity"
+    >
+      {locale === 'zh' ? '张三' : 'Zhang San'}
+    </a>
+    
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex items-center gap-8">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+        >
+          {item.label}
+        </a>
+      ))}
+      
+      <!-- Language Switcher -->
+      <a
+        href={locale === 'zh' ? '/' : '/zh/'}
+        class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+      >
+        <span>{locale === 'zh' ? 'English' : '中文'}</span>
+      </a>
+    </div>
+    
+    <!-- Mobile Menu Button -->
+    <button
+      class="md:hidden p-2 text-[var(--color-text)]"
+      aria-label={t.nav.toggle_menu}
+      data-mobile-menu-btn
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Mobile Menu -->
+  <div
+    class="mobile-menu md:hidden fixed inset-x-0 top-16 bg-[var(--color-bg)] border-b border-[var(--color-border)] opacity-0 pointer-events-none transition-all duration-300"
+    data-mobile-menu
+  >
+    <div class="container py-4 space-y-4">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class="block text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+        >
+          {item.label}
+        </a>
+      ))}
+      
+      <!-- Mobile Language Switcher -->
+      <a
+        href={locale === 'zh' ? '/' : '/zh/'}
+        class="block text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+      >
+        🌐 {locale === 'zh' ? 'English' : '中文'}
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Mobile menu toggle
+  const menuBtn = document.querySelector('[data-mobile-menu-btn]');
+  const mobileMenu = document.querySelector('[data-mobile-menu]');
+  let isOpen = false;
+  
+  menuBtn?.addEventListener('click', () => {
+    isOpen = !isOpen;
+    if (isOpen) {
+      mobileMenu?.classList.remove('opacity-0', 'pointer-events-none');
+      mobileMenu?.classList.add('opacity-100', 'pointer-events-auto');
+    } else {
+      mobileMenu?.classList.add('opacity-0', 'pointer-events-none');
+      mobileMenu?.classList.remove('opacity-100', 'pointer-events-auto');
+    }
+  });
+</script>
+
+<style>
+  .navbar {
+    will-change: transform;
+  }
+  
+  .mobile-menu {
+    transform-origin: top;
+  }
+</style>

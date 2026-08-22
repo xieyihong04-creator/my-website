@@ -1,0 +1,56 @@
+---
+export interface Props {
+  locale: 'zh' | 'en';
+  currentPath: string;
+}
+
+const { locale, currentPath } = Astro.props;
+
+// Import translations
+import zh from '../../content/i18n/zh.json';
+import en from '../../content/i18n/en.json';
+const t = locale === 'zh' ? zh : en;
+
+// Determine the other locale and path
+const otherLocale = locale === 'zh' ? 'en' : 'zh';
+const otherLocaleLabel = locale === 'zh' ? 'English' : '中文';
+
+// Build the URL for the other language
+const basePath = currentPath.replace(/^\/(zh|en)/, '').replace(/^\/\//, '/');
+const otherLocalePath = otherLocale === 'en' && basePath === '/' 
+  ? '/' 
+  : `/${otherLocale}${basePath}`;
+---
+
+<button
+  class="lang-switcher inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+  aria-label={`Switch to ${otherLocaleLabel}`}
+  data-lang-switch
+>
+  <span class="w-4 h-4">
+    {otherLocale === 'zh' ? '🇨🇳' : '🇺🇸'}
+  </span>
+  <span>{otherLocaleLabel}</span>
+</button>
+
+<script>
+  // Language switcher click handler
+  document.querySelectorAll('[data-lang-switch]').forEach(button => {
+    button.addEventListener('click', () => {
+      const targetPath = button.getAttribute('data-target-path') || '{otherLocalePath}';
+      window.location.href = targetPath;
+    });
+  });
+</script>
+
+<style>
+  .lang-switcher {
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  
+  .lang-switcher:hover {
+    background: var(--color-bg-secondary);
+  }
+</style>

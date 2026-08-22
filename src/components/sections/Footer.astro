@@ -1,0 +1,108 @@
+---
+export interface Props {
+  locale: 'zh' | 'en';
+}
+
+const { locale } = Astro.props;
+
+// Import site config and translations
+import siteConfig from '../../content/site.json';
+import zh from '../../content/i18n/zh.json';
+import en from '../../content/i18n/en.json';
+const t = locale === 'zh' ? zh : en;
+
+const currentYear = new Date().getFullYear();
+const footerText = locale === 'zh' ? siteConfig.footer.zh : siteConfig.footer.en;
+-->
+
+<footer class="footer border-t border-[var(--color-border)] bg-[var(--color-bg-secondary)]">
+  <div class="container py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+      <!-- Brand -->
+      <div>
+        <h3 class="text-lg font-display font-semibold mb-4">
+          {locale === 'zh' ? '张三' : 'Zhang San'}
+        </h3>
+        <p class="text-sm text-[var(--color-text-secondary)] mb-4">
+          {locale === 'zh' 
+            ? '高中生 / 编程进阶中 / 热爱创造' 
+            : 'High school student / Leveling up in code / Love building things'}
+        </p>
+      </div>
+      
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">
+          {locale === 'zh' ? '导航' : 'Navigation'}
+        </h4>
+        <ul class="space-y-2">
+          <li>
+            <a href={locale === 'zh' ? '/zh/' : '/'} class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">
+              {locale === 'zh' ? '首页' : 'Home'}
+            </a>
+          </li>
+          <li>
+            <a href={locale === 'zh' ? '/zh/about' : '/about'} class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">
+              {locale === 'zh' ? '关于我' : 'About'}
+            </a>
+          </li>
+          <li>
+            <a href={locale === 'zh' ? '/zh/projects' : '/projects'} class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">
+              {locale === 'zh' ? '作品集' : 'Projects'}
+            </a>
+          </li>
+          <li>
+            <a href={locale === 'zh' ? '/zh/blog' : '/blog'} class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">
+              {locale === 'zh' ? '博客' : 'Blog'}
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Social Links -->
+      <div>
+        <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider">
+          {locale === 'zh' ? '联系' : 'Contact'}
+        </h4>
+        <div class="flex items-center gap-4">
+          <a
+            href="https://github.com/username"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+            aria-label="GitHub"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-6.27 0-1.38.495-2.52 1.305-3.42-.135-.315-.57-1.62.12-3.375 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.69 1.755.255 3.06.12 3.375.81.9 1.305 2.04 1.305 3.42 0 4.95-2.805 5.97-5.475 6.27.435.375.825 1.11.825 2.25 0 1.62-.015 2.925-.015 3.315 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </a>
+          <a
+            href="mailto:hello@example.com"
+            class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+            aria-label="Email"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Copyright -->
+    <div class="mt-12 pt-8 border-t border-[var(--color-border)] text-center">
+      <p class="text-sm text-[var(--color-text-muted)]">
+        {footerText}
+      </p>
+      <p class="text-xs text-[var(--color-text-muted)] mt-2">
+        {t.footer.zh.built_with}
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: auto;
+  }
+</style>
