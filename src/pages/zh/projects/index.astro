@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Navbar from '../../../components/sections/Navbar.astro';
+import Footer from '../../../components/sections/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const locale: 'en' | 'zh' = 'zh';
+import zh from '../../../../content/i18n/zh.json';
+const t = zh;
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title={t.projects.title} locale={locale} description={t.projects.description}>
+  <Navbar locale={locale} />
+  <main class="container py-24 md:py-32">
+    <h1 class="text-3xl md:text-4xl font-display font-bold mb-4">{t.projects.title}</h1>
+    <p class="text-[var(--color-text-secondary)] mb-12">{t.projects.description}</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {projects.map((project) => {
+        const slug = project.id.replace(/\.md$/, '');
+        return (
+          <article class="border border-[var(--color-border)] rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="p-6">
+              <h2 class="text-xl font-semibold mb-2">{project.data.title[locale]}</h2>
+              <p class="text-sm text-[var(--color-text-secondary)] mb-4">{project.data.description[locale]}</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                {project.data.tags.map((tag) => (
+                  <span class="text-xs px-2 py-1 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-full">{tag}</span>
+                ))}
+              </div>
+              <div class="flex gap-3">
+                <a href={`/zh/projects/${slug}`} class="text-sm font-medium text-[var(--color-accent)] hover:opacity-80">
+                  {t.projects.view_project} →
+                </a>
+                {project.data.link && (
+                  <a href={project.data.link} target="_blank" rel="noopener" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">GitHub</a>
+                )}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>

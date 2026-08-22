@@ -11,10 +11,10 @@ import Footer from '../components/sections/Footer.astro';
 import profile from '../../content/profile.json';
 import site from '../../content/site.json';
 
-const locale = 'zh' as const;
+const locale = 'en' as const;
 ---
 
-<BaseLayout title={site.title.zh} locale={locale} description={site.description.zh}>
+<BaseLayout title={site.title.en} locale={locale} description={site.description.en}>
   <!-- 导航栏 -->
   <Navbar locale={locale} />
   
@@ -24,8 +24,8 @@ const locale = 'zh' as const;
   <!-- 关于我区域 -->
   <section class="section about">
     <div class="container">
-      <h2>关于我</h2>
-      <p>{profile.bio.zh}</p>
+      <h2>About Me</h2>
+      <p>{profile.bio.en}</p>
     </div>
   </section>
   

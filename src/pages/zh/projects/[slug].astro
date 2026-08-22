@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Navbar from '../../../components/sections/Navbar.astro';
+import Footer from '../../../components/sections/Footer.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id.replace(/\.md$/, '') },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const locale: 'en' | 'zh' = 'zh';
+import zh from '../../../../content/i18n/zh.json';
+const t = zh;
+---
+
+<BaseLayout title={project.data.title[locale]} locale={locale} description={project.data.description[locale]}>
+  <Navbar locale={locale} />
+  <main class="container py-24 md:py-32 max-w-3xl">
+    <a href="/zh/projects" class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] mb-8 inline-block">← {t.projects.back_to_projects}</a>
+    <h1 class="text-3xl md:text-4xl font-display font-bold mb-4">{project.data.title[locale]}</h1>
+    <p class="text-[var(--color-text-secondary)] mb-6">{project.data.description[locale]}</p>
+    <div class="flex flex-wrap gap-2 mb-8">
+      {project.data.tags.map((tag) => <span class="text-xs px-2 py-1 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-full">{tag}</span>)}
+    </div>
+    {project.data.link && <a href={project.data.link} target="_blank" rel="noopener" class="inline-block mb-8 px-4 py-2 bg-[var(--color-accent)] text-white rounded-lg text-sm">GitHub →</a>}
+    <article class="prose prose-neutral max-w-none">
+      <Content />
+    </article>
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>

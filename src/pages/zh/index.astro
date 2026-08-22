@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/sections/Navbar.astro';
+import Hero from '../../components/sections/Hero.astro';
+import Footer from '../../components/sections/Footer.astro';
+import profile from '../../../content/profile.json';
+import site from '../../../content/site.json';
+const locale = 'zh' as const;
+---
+
+<BaseLayout title={site.title.zh} locale={locale} description={site.description.zh}>
+  <Navbar locale={locale} />
+  <Hero locale={locale} />
+  <section class="section about">
+    <div class="container">
+      <h2>关于我</h2>
+      <p>{profile.bio.zh}</p>
+    </div>
+  </section>
+  <Footer locale={locale} />
+</BaseLayout>
+
+<style>
+  .section { padding: 4rem 1rem; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h2 { font-size: 2rem; margin-bottom: 1.5rem; text-align: center; }
+  .about p { font-size: 1.1rem; line-height: 1.8; text-align: center; max-width: 700px; margin: 0 auto; color: #444; }
+</style>

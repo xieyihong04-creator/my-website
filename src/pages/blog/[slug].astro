@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/sections/Navbar.astro';
+import Footer from '../../components/sections/Footer.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.id.replace(/\.md$/, '') },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const locale = 'en' as const;
+import en from '../../../content/i18n/en.json';
+const t = en;
+---
+
+<BaseLayout title={post.data.title[locale]} locale={locale} description={post.data.description[locale]}>
+  <Navbar locale={locale} />
+  <main class="container py-24 md:py-32 max-w-3xl">
+    <a href="/blog" class="text-sm text-[var(--color-text-secondary)] mb-8 inline-block">← {t.blog.back_to_blog}</a>
+    <h1 class="text-3xl font-bold mb-2">{post.data.title[locale]}</h1>
+    <p class="text-sm text-[var(--color-text-muted)] mb-6">{t.blog.published_on} {post.data.date.toLocaleDateString()}</p>
+    <article class="prose prose-neutral max-w-none"><Content /></article>
+  </main>
+  <Footer locale={locale} />
+</BaseLayout>
