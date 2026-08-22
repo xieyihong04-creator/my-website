@@ -3,13 +3,15 @@ export interface Props {
   locale: 'zh' | 'en';
 }
 
-const { locale } = Astro.props;
+const { locale = 'en' } = Astro.props;
 
 // Import site config and translations
-import siteConfig from '../../content/site.json';
-import zh from '../../content/i18n/zh.json';
-import en from '../../content/i18n/en.json';
+import siteConfig from '../../../content/site.json';
+import profile from '../../../content/profile.json';
+import zh from '../../../content/i18n/zh.json';
+import en from '../../../content/i18n/en.json';
 const t = locale === 'zh' ? zh : en;
+const displayName = locale === 'zh' ? profile.name.zh : profile.name.en;
 
 const navItems = siteConfig.navigation.map(item => ({
   label: locale === 'zh' ? item.zh : item.en,
@@ -24,7 +26,7 @@ const navItems = siteConfig.navigation.map(item => ({
       href={locale === 'zh' ? '/zh/' : '/'}
       class="text-xl font-display font-semibold tracking-tight hover:opacity-70 transition-opacity"
     >
-      {locale === 'zh' ? '张三' : 'Zhang San'}
+      {displayName}
     </a>
     
     <!-- Desktop Navigation -->
@@ -51,6 +53,8 @@ const navItems = siteConfig.navigation.map(item => ({
     <button
       class="md:hidden p-2 text-[var(--color-text)]"
       aria-label={t.nav.toggle_menu}
+      aria-expanded="false"
+      aria-controls="mobile-menu"
       data-mobile-menu-btn
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,6 +65,7 @@ const navItems = siteConfig.navigation.map(item => ({
   
   <!-- Mobile Menu -->
   <div
+    id="mobile-menu"
     class="mobile-menu md:hidden fixed inset-x-0 top-16 bg-[var(--color-bg)] border-b border-[var(--color-border)] opacity-0 pointer-events-none transition-all duration-300"
     data-mobile-menu
   >
@@ -86,21 +91,30 @@ const navItems = siteConfig.navigation.map(item => ({
 </nav>
 
 <script>
-  // Mobile menu toggle
   const menuBtn = document.querySelector('[data-mobile-menu-btn]');
   const mobileMenu = document.querySelector('[data-mobile-menu]');
   let isOpen = false;
   
-  menuBtn?.addEventListener('click', () => {
-    isOpen = !isOpen;
+  function toggleMenu(open) {
+    isOpen = open;
+    if (!mobileMenu || !menuBtn) return;
+    menuBtn.setAttribute('aria-expanded', String(isOpen));
     if (isOpen) {
-      mobileMenu?.classList.remove('opacity-0', 'pointer-events-none');
-      mobileMenu?.classList.add('opacity-100', 'pointer-events-auto');
+      mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+      mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
     } else {
-      mobileMenu?.classList.add('opacity-0', 'pointer-events-none');
-      mobileMenu?.classList.remove('opacity-100', 'pointer-events-auto');
+      mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+      mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
     }
+  }
+
+  menuBtn?.addEventListener('click', () => toggleMenu(!isOpen));
+  // Close when clicking outside or on link
+  mobileMenu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => toggleMenu(false)));
+  document.addEventListener('click', (e) => {
+    if (isOpen && !mobileMenu?.contains(e.target as Node) && !menuBtn?.contains(e.target as Node)) toggleMenu(false);
   });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) toggleMenu(false); });
 </script>
 
 <style>

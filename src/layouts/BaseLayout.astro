@@ -7,15 +7,19 @@ export interface Props {
   canonicalURL?: string;
 }
 
+import siteConfig from '../../content/site.json';
+import profile from '../../content/profile.json';
+
 const {
   title,
-  description = '高中生编程进阶者的个人作品集网站',
+  description = Astro.props.locale === 'zh' ? siteConfig.description.zh : siteConfig.description.en,
   image = '/og-image.png',
   locale = 'en',
   canonicalURL = Astro.url.href,
 } = Astro.props;
 
-const siteTitle = 'Portfolio | Zhang San';
+const siteTitle = locale === 'zh' ? siteConfig.title.zh : siteConfig.title.en;
+const authorName = locale === 'zh' ? profile.name.zh : profile.name.en;
 const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
 ---
 
@@ -42,7 +46,7 @@ const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
     
     <!-- SEO -->
     <meta name="robots" content="index, follow" />
-    <meta name="author" content="Zhang San" />
+    <meta name="author" content={authorName} />
     
     <!-- Preload Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

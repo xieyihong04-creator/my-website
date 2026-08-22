@@ -1,92 +1,42 @@
 {
   "hero": {
-    "zh": {
-      "greeting": "你好，我是",
-      "cta_primary": "查看我的作品",
-      "cta_secondary": "了解更多"
-    },
-    "en": {
-      "greeting": "Hi, I'm",
-      "cta_primary": "View My Work",
-      "cta_secondary": "Learn More"
-    }
+    "greeting": "Hi, I'm",
+    "cta_primary": "View My Work",
+    "cta_secondary": "Learn More"
   },
   "nav": {
-    "toggle_language": "中文",
+    "toggle_language": "English",
     "toggle_menu": "Menu"
   },
   "home": {
-    "zh": {
-      "featured_projects": "精选项目",
-      "latest_posts": "最新文章",
-      "view_all": "查看全部"
-    },
-    "en": {
-      "featured_projects": "Featured Projects",
-      "latest_posts": "Latest Posts",
-      "view_all": "View All"
-    }
+    "featured_projects": "Featured Projects",
+    "latest_posts": "Latest Posts",
+    "view_all": "View All"
   },
   "about": {
-    "zh": {
-      "title": "关于我",
-      "journey_title": "我的编程之旅"
-    },
-    "en": {
-      "title": "About Me",
-      "journey_title": "My Programming Journey"
-    }
+    "title": "About Me",
+    "journey_title": "My Programming Journey"
   },
   "projects": {
-    "zh": {
-      "title": "作品集",
-      "description": "这里展示了我的一些个人项目",
-      "technologies": "技术栈",
-      "view_project": "查看项目",
-      "back_to_projects": "返回作品集"
-    },
-    "en": {
-      "title": "Projects",
-      "description": "A collection of my personal projects",
-      "technologies": "Technologies",
-      "view_project": "View Project",
-      "back_to_projects": "Back to Projects"
-    }
+    "title": "Projects",
+    "description": "A collection of my personal projects",
+    "technologies": "Technologies",
+    "view_project": "View Project",
+    "back_to_projects": "Back to Projects"
   },
   "blog": {
-    "zh": {
-      "title": "博客",
-      "description": "分享我的学习心得和技术文章",
-      "read_more": "阅读全文",
-      "published_on": "发布于",
-      "back_to_blog": "返回博客"
-    },
-    "en": {
-      "title": "Blog",
-      "description": "Sharing my learning insights and technical articles",
-      "read_more": "Read More",
-      "published_on": "Published on",
-      "back_to_blog": "Back to Blog"
-    }
+    "title": "Blog",
+    "description": "Sharing my learning insights and technical articles",
+    "read_more": "Read More",
+    "published_on": "Published on",
+    "back_to_blog": "Back to Blog"
   },
   "footer": {
-    "zh": {
-      "built_with": "使用 Astro 构建"
-    },
-    "en": {
-      "built_with": "Built with Astro"
-    }
+    "built_with": "Built with Astro"
   },
   "common": {
-    "zh": {
-      "loading": "加载中...",
-      "error": "出错了",
-      "not_found": "页面未找到"
-    },
-    "en": {
-      "loading": "Loading...",
-      "error": "Something went wrong",
-      "not_found": "Page not found"
-    }
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "not_found": "Page not found"
   }
 }

@@ -1,15 +1,17 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function initScrollAnimations() {
-  // Fade in elements with .animate-on-scroll class
+  if (typeof window === 'undefined') return;
   const elements = document.querySelectorAll('.animate-on-scroll');
   
   elements.forEach((element) => {
     gsap.fromTo(
-      element,
+      element as HTMLElement,
       { opacity: 0, y: 40 },
       {
         opacity: 1,
@@ -17,7 +19,7 @@ export function initScrollAnimations() {
         duration: 0.8,
         ease: 'power3.out',
         scrollTrigger: {
-          trigger: element,
+          trigger: element as HTMLElement,
           start: 'top 85%',
           toggleActions: 'play none none none',
         },
@@ -27,6 +29,7 @@ export function initScrollAnimations() {
 }
 
 export function initHeroAnimation() {
+  if (typeof window === 'undefined') return undefined;
   const tl = gsap.timeline();
   
   tl.from('.hero-title', {
@@ -52,10 +55,11 @@ export function initHeroAnimation() {
 }
 
 export function initParallaxEffect() {
-  gsap.utils.toArray('.parallax').forEach((layer: any) => {
-    const depth = layer.dataset.depth || 0.5;
+  if (typeof window === 'undefined') return;
+  gsap.utils.toArray<HTMLElement>('.parallax').forEach((layer) => {
+    const depth = parseFloat(layer.dataset.depth || '0.5');
     gsap.to(layer, {
-      y: (i, target) => ScrollTrigger.maxScroll(window) * depth * (target as HTMLElement).offsetTop / 1000,
+      y: () => ScrollTrigger.maxScroll(window) * depth * layer.offsetTop / 1000,
       ease: 'none',
       scrollTrigger: {
         trigger: layer,

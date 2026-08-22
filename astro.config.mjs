@@ -4,16 +4,15 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://your-portfolio.vercel.app',
+  site: 'https://xieyihong04-creator.github.io/my-website',
   vite: {
     plugins: [tailwindcss()],
   },
   i18n: {
     locales: ['en', 'zh'],
     defaultLocale: 'en',
-    prefixDefaultLocale: false,
     routing: {
-      prefixOtherLocales: true,
+      prefixDefaultLocale: false,
     },
   },
 });

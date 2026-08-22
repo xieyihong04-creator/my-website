@@ -35,12 +35,7 @@
   }
 }
 
-/* Base Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* Base Styles - Tailwind preflight already resets, avoid duplicate * reset */
 
 html {
   scroll-behavior: smooth;
@@ -73,13 +68,16 @@ p {
 }
 
 a {
-  color: var(--color-accent);
   text-decoration: none;
   transition: opacity 0.2s var(--transition-smooth);
 }
 
 a:hover {
   opacity: 0.8;
+}
+
+a.link-accent {
+  color: var(--color-accent);
 }
 
 /* Utility Classes */

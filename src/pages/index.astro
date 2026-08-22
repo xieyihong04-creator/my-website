@@ -1,6 +1,6 @@
 ---
 // 导入布局
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
 // 导入组件
 import Navbar from '../components/sections/Navbar.astro';
@@ -10,14 +10,16 @@ import Footer from '../components/sections/Footer.astro';
 // 导入数据
 import profile from '../../content/profile.json';
 import site from '../../content/site.json';
+
+const locale = 'zh' as const;
 ---
 
-<Layout title={site.title.zh}>
+<BaseLayout title={site.title.zh} locale={locale} description={site.description.zh}>
   <!-- 导航栏 -->
-  <Navbar />
+  <Navbar locale={locale} />
   
   <!-- 英雄区 -->
-  <Hero profile={profile} />
+  <Hero locale={locale} />
   
   <!-- 关于我区域 -->
   <section class="section about">
@@ -28,8 +30,8 @@ import site from '../../content/site.json';
   </section>
   
   <!-- 页脚 -->
-  <Footer site={site} />
-</Layout>
+  <Footer locale={locale} />
+</BaseLayout>
 
 <style>
   .section {
