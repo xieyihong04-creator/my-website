@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>深夜書桌 · 謝宜宏</title>
 <meta name="description" content="一位台灣高中生的成長紀錄 —— 自學程式、專案、目標與夢想。">
+<meta name="theme-color" content="#120e0b">
+<meta property="og:type" content="profile">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:site_name" content="深夜書桌">
+<meta property="og:title" content="深夜書桌 · 謝宜宏">
+<meta property="og:description" content="台中的高二生，自學程式。把每個卡住我的錯誤訊息讀完 —— 專案、學習之路與目標。">
+<meta property="og:url" content="https://xieyihong04-creator.github.io/my-website/">
+<meta property="og:image" content="https://xieyihong04-creator.github.io/my-website/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="深夜書桌 · 謝宜宏">
+<meta name="twitter:description" content="台中的高二生，自學程式。專案、學習之路與目標。">
+<meta name="twitter:image" content="https://xieyihong04-creator.github.io/my-website/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23120e0b'/%3E%3Cpath d='M14 44h36' stroke='%23e8a33d' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M20 44V30c0-8 6-14 12-14s12 6 12 14v14' fill='none' stroke='%23e8a33d' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='34' r='5' fill='%23f5c177'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=LXGW+WenKai+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -164,6 +179,7 @@ h2{font-family:var(--kai);font-weight:400;font-size:clamp(1.45rem,4.3vw,2.05rem)
 .st[data-s="進行中"]{color:var(--amber-hi);border-color:rgba(232,163,61,.5)}
 .st[data-s="已完成"]{color:#9fd39a;border-color:rgba(159,211,154,.4)}
 .st[data-s="練習"]{color:var(--pencil)}
+.st[data-s="擱置"]{color:#c98f8f;border-color:rgba(201,143,143,.45)}
 .card p{font-size:.92rem;color:var(--paper-dim);margin:11px 0 14px}
 .card a.more{font-family:var(--mono);font-size:.74rem;color:var(--amber);text-decoration:none;
   border-bottom:1px dashed rgba(232,163,61,.5);padding-bottom:2px;transition:.2s}
@@ -501,14 +517,14 @@ const DEFAULT_DATA = {
   api:"https://wall-api.xieyihong04.workers.dev",
   meta:{
     name:"謝宜宏",
-    kicker:"TAIPEI · 高中生 · 自學第 4 年",
+    kicker:"TAICHUNG · 高中生",
     titleA:"我在把夜裡的靈感",
     titleB:"寫成會動的東西",
     sub:"還不會寫出很厲害的系統，但我會把每個卡住我的錯誤訊息讀完。這裡是我從「抄教學」到「自己拆得開問題」的紀錄。",
-    status:"正在學：Rust 與系統程式",
+    status:"正在學：C++",
     location:"台灣 · 台中",
     grade:"高二生",
-    instagram:"https://www.instagram.com/xie.ih?stkn=MTlmMDI2Yno2YXEzaw==",
+    instagram:"https://www.instagram.com/xie.ih/",
     igHandle:"@xie.ih",
     igNote:"卡關的過程用拍的最直接：凌晨三點的終端機畫面、寫到一半的白板、還有終於跑成功那張截圖。不精修，看得懂我在折騰什麼就好。",
     igStats:[["內容","專案進度 / debug 現場"],["頻率","一週 2–3 則"],["交流","私訊都看，一起自學的舉手"]]
@@ -549,16 +565,16 @@ const DEFAULT_DATA = {
   projTitle:"作品與專案",
   projLead:"有上線的、有半途而廢的、也有純練習的。我傾向留下來的，因為刪掉等於沒學過。",
   projects:[
-    {name:"衛道速覽 · VTSH Reader",status:"進行中",desc:"學校公告與校曆的 Android 閱讀 App（非官方）。校曆是 PDF，我乾脆在裝置端用 PDFBox 即時解析成事件——學校換學期不用發版。",tech:["Kotlin","Compose","PDFBox"],link:"https://github.com/"},
-    {name:"CS2 Auto Highlight Recorder",status:"已完成",status2:"v0.1.0",desc:"偵測遊戲事件後自動叫 OBS 存回放緩衝，把高光片段入庫管理。Tauri + Rust，102 個後端測試全過，實機跑通。",tech:["Rust","Tauri","Vue 3","OBS WS"],link:"https://github.com/"},
+    {name:"衛道速覽 · VTSH Reader",status:"進行中",desc:"學校公告與校曆的 Android 閱讀 App（非官方）。校曆是 PDF，我乾脆在裝置端用 PDFBox 即時解析成事件——學校換學期不用發版。",tech:["Kotlin","Compose","PDFBox"],link:"https://github.com/xieyihong04-creator/vtsh-reader"},
+    {name:"CS2 Auto Highlight Recorder",status:"擱置",status2:"v0.1.0",desc:"偵測遊戲事件後自動叫 OBS 存回放緩衝，把高光片段入庫管理。Tauri + Rust，102 個後端測試全過，實機跑通。後來卡了一個重現路徑不明的 bug，加上架構對我來說過度複雜，先擱著了——寫完這隻我才懂「能跑」和「維護得住」是兩件事。",tech:["Rust","Tauri","Vue 3","OBS WS"]},
     {name:"值日表工具",status:"已完成",desc:"班級用的一週輪值產生器，處理了「同學自己偷偷換位置」這類地獄情境。五個使用者，但我認真維護了一整個學期。",tech:["JavaScript","localStorage"]},
-    {name:"這個個人網站",status:"進行中",desc:"你正在看的這一頁。目標是讓它像我的書桌，而不是像求職履歷——單檔、無框架、自己維護得住。",tech:["Vanilla JS","CSS"],link:"https://github.com/"}
+    {name:"這個個人網站",status:"進行中",desc:"你正在看的這一頁。目標是讓它像我的書桌，而不是像求職履歷——單檔、無框架、自己維護得住。",tech:["Vanilla JS","CSS"],link:"https://github.com/xieyihong04-creator/my-website"}
   ],
   goalTitle:"目標與夢想",
   goals:[
     {title:"考上資訊工程相關科系",text:"把學測自然與數 A 穩在能選資工的分數，同時保留統測／申請的備案。",due:"2027-01-18",unit:"學測"},
     {title:"把 VTSH Reader 給真正的同學用",text:"目標是 50 個日活使用者。目前卡在 PDF 表格辨識與省電模式。",due:"2026-12-31",unit:"上線"},
-    {title:"讀完一本正規的系統書",text:"CSAPP 或 OSTEP 挑一本真的寫完習題，不是「看過」。",due:"2026-06-30",unit:"讀書"},
+    {title:"讀完一本正規的系統書",text:"CSAPP 或 OSTEP 挑一本真的寫完習題，不是「看過」。原定今年夏天讀完，實際上卡在 CHAPTER 6 沒往下走——日期我往後挪了一次，挪第二次時就該先問自己是不是目標開太大。",due:"2027-06-30",unit:"讀書"},
     {title:"貢獻第一個 PR 被合併",text:"不求大，任何一個開源專案的 typo 以外的問題都行。",due:"2026-11-30",unit:"開源"}
   ],
   badges:[
@@ -619,7 +635,12 @@ function migrateSocial(d){
   ["telegram","channel","tgNote","tgStats"].forEach(k=>{delete m[k];});
   ["tgTitle","tgCtaLabel"].forEach(k=>{delete d[k];});
   if(!/^https?:\/\/(www\.)?instagram\.com\//.test(String(m.instagram||"")))
-    m.instagram="https://www.instagram.com/xie.ih?stkn=MTlmMDI2Yno2YXEzaw==";
+    m.instagram="https://www.instagram.com/xie.ih/";
+  /* 分享連結附帶的追蹤參數（?stkn=…）一律剝掉：會外洩分享來源，也沒有意義 */
+  m.instagram=String(m.instagram).replace(/[?&](stkn|igshid|share_id)=[^&]*/gi,"").replace(/[?&]$/,"");
+  if(!/^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._\/-]*$/.test(m.instagram))
+    m.instagram="https://www.instagram.com/xie.ih/";
+  if(/^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+$/.test(m.instagram))m.instagram+="/";
   if(!/^@?[A-Za-z0-9._]{2,30}$/.test(String(m.igHandle||"")))m.igHandle="@xie.ih";
   d.igTitle=d.igTitle||"學習過程的實時後台";
   d.igCtaLabel=d.igCtaLabel||"到 Instagram 看我卡關";
@@ -721,7 +742,7 @@ function renderGoals(){
   $("#goalList").innerHTML=DATA.goals.map(g=>{
     const n=daysLeft(g.due);
     const box=n===null?"":(n<0
-      ? `<div class="cd"><b style="font-size:1rem;line-height:1.4">已到期</b><small>${esc(g.due)}</small></div>`
+      ? `<div class="cd"><b style="font-size:1.15rem;line-height:1.3">逾期</b><small>${Math.abs(n)} 天前 · ${esc(g.due)}</small></div>`
       : `<div class="cd"><b>${n}</b><small>天 · ${esc(g.unit||"D")}</small></div>`);
     return `<div class="glass goal rv">${box}
       <div style="flex:1;min-width:200px">
@@ -1051,7 +1072,7 @@ const SCHEMA=[
   {g:"技能",t:"list",p:"skills",l:"技能（0–100 主觀自評）",
     f:[["name","名稱","text"],["level","程度 %","num"],["note","備註","text"]]},
   {g:"作品",t:"list",p:"projects",l:"專案",
-    f:[["name","名稱","text"],["status","狀態（進行中/已完成/練習）","text"],["desc","說明","area"],
+    f:[["name","名稱","text"],["status","狀態（進行中/已完成/擱置/練習）","text"],["desc","說明","area"],
        ["techStr","技術標籤（逗號分隔）","text"],["link","連結","text"]]},
   {g:"目標",t:"list",p:"goals",l:"目標（填截止日就會自動倒數）",
     f:[["title","標題","text"],["text","說明","area"],["due","日期 YYYY-MM-DD","text"],["unit","單位字","text"]]},
