@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- CSP 走 meta：GitHub Pages 不支援自訂響應頭，這是今天就能生效的那一半。
+     重點不是 script-src（單檔架構一定要 'unsafe-inline'），而是 connect-src——
+     它掐斷外傳通道：就算哪天出現 XSS，被注入的腳本也無法把 sessionStorage
+     裡的短期管理憑證 fetch 到別人的伺服器。
+     注意 frame-ancestors 與 report-uri 在 meta 中無效，只能等搬 Cloudflare Pages
+     用 _headers 補；HSTS 也一樣，且屆時切勿加 includeSubDomains（dpdns.org 是共享公共域）。 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://xieih.dpdns.org https://xieyihong04-creator.github.io https://wall-api.xieyihong04.workers.dev; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
 <title>深夜書桌 · 謝宜宏</title>
 <meta name="description" content="一位台灣高中生的成長紀錄 —— 自學程式、專案、目標與夢想。">
 <meta name="theme-color" content="#120e0b">
