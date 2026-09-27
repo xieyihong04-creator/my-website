@@ -478,10 +478,13 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
     <div id="pBody"></div>
   </div>
   <div class="pf">
-    <button class="pri" id="pSave">儲存 (Ctrl+S)</button>
+    <button class="pri" id="pSave">儲存草稿 (Ctrl+S)</button>
+    <button id="pPublish" title="推給所有訪客">發布全站</button>
+    <button id="pUnpub" title="清除發布，回到檔案預設">取消發布</button>
     <button id="pExport">匯出 JSON</button>
     <button id="pImport">匯入 JSON</button>
     <button id="pReset">回復預設</button>
+    <span class="hint" id="pubNote" style="margin:0;width:100%"></span>
   </div>
 </aside>
 <textarea id="pIo" style="display:none" aria-hidden="true"></textarea>
@@ -579,6 +582,7 @@ const DEFAULT_DATA = {
 /* ============================================================ */
 
 const KEY="desk.data.v1", WALL="desk.wall.v1", POLL="desk.poll.v1", LAMP="desk.lamp.v1";
+const CDATA="desk.remote.v1", CTIME="desk.remote.t.v1";
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const RM=window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -604,10 +608,13 @@ function rich(s){
     : inline(t);
 }
 function deep(o){return JSON.parse(JSON.stringify(o));}
+/* 疊層優先序：檔案內建 DEFAULT_DATA < 站長發布的內容 < 本機未發布的草稿 */
 function load(){
-  try{const raw=localStorage.getItem(KEY); if(!raw) return deep(DEFAULT_DATA);
-    const saved=JSON.parse(raw); return Object.assign(deep(DEFAULT_DATA),saved);}
-  catch(e){return deep(DEFAULT_DATA);}
+  let d=deep(DEFAULT_DATA);
+  try{const r=JSON.parse(localStorage.getItem(CDATA));
+    if(r&&typeof r==="object"&&!Array.isArray(r)) d=Object.assign(d,r);}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem(KEY)); if(s) d=Object.assign(d,s);}catch(e){}
+  return d;
 }
 let DATA=load();
 
@@ -723,7 +730,6 @@ function apiBase(){
   const u = String(DATA.api || "").trim().replace(/\/+$/, "");
   return /^https?:\/\//.test(u) ? u : "";
 }
-function hasToken(){ return !!localStorage.getItem(ADK); }
 function adminToken(){ return localStorage.getItem(ADK) || ""; }
 async function api(path, opts = {}){
   const res = await fetch(apiBase() + path, {
@@ -735,6 +741,61 @@ async function api(path, opts = {}){
   let data = null; try { data = await res.json(); } catch(e){}
   if(!res.ok) throw new Error((data && data.error) || ("HTTP " + res.status));
   return data;
+}
+/* 站長面板「發布」用的內容同步：先套快取、再問伺服器。
+   api 欄位一律不進不離，避免發布時把後端網址自己蓋掉。 */
+async function pullContent(silent){
+  if(!apiBase()){if(!silent)toast("沒設後端網址，發布功能不可用");return false;}
+  try{
+    const d=await api("/api/content");
+    const pub=d&&d.data&&typeof d.data==="object"&&!Array.isArray(d.data)?d.data:null;
+    if(pub)delete pub.api;
+    const inc=pub?JSON.stringify(pub):null;
+    if(inc!==(localStorage.getItem(CDATA)||"")){
+      if(inc)localStorage.setItem(CDATA,inc);else{localStorage.removeItem(CDATA);localStorage.removeItem(CTIME);}
+      if(d.updated_at)localStorage.setItem(CTIME,d.updated_at);
+      DATA=load();renderAll();
+      syncPubLabel();
+      /* 面板開著時不重建表單，免得把站長還沒儲存的編輯洗掉 */
+      if(!$("#panel").classList.contains("open"))buildPanel();
+      if(!silent)toast(inc?"已套用站長發布的內容":"已回到檔案內建內容");
+    }
+    return !!inc;
+  }catch(e){if(!silent)toast("抓不到發布內容："+e.message);return false;}
+}
+async function publishContent(){
+  if(!apiBase()){toast("沒設後端網址，無法發布");return;}
+  const tk=adminToken();
+  if(!tk){toast("先按右上角 🔒 輸入站長密碼才能發布");return;}
+  if(!confirm("把目前面板裡的內容發布給所有訪客？\n（檔案裡的重預設值仍保留在 GitHub）"))return;
+  const payload=deep(DATA);delete payload.api;
+  const s=JSON.stringify(payload);
+  if(s.length>115000){toast("內容太大（"+s.length+" 字元，上限約 115000）");return;}
+  const btn=$("#pPublish");if(btn)btn.disabled=true;
+  try{
+    await api("/api/admin/content",{method:"POST",body:{token:tk,data:payload}});
+    localStorage.setItem(CDATA,s);localStorage.setItem(CTIME,"剛剛發布");
+    /* 發布後內容已等於正式資料，草稿只留 api 覆蓋，避免兩層重複 */
+    localStorage.setItem(KEY,JSON.stringify({api:DATA.api}));
+    toast("已發布，全站訪客看得到了");
+    syncPubLabel();
+  }catch(e){toast("發布失敗："+e.message);}
+  if(btn)btn.disabled=false;
+}
+async function unpublishContent(){
+  const tk=adminToken();if(!tk){toast("先按右上角 🔒 輸入站長密碼");return;}
+  if(!confirm("清除已發布的內容？網站會回到 GitHub 檔案裡的預設文字。"))return;
+  try{
+    await api("/api/admin/content",{method:"POST",body:{token:tk,data:null}});
+    localStorage.removeItem(CDATA);localStorage.removeItem(CTIME);
+    DATA=load();renderAll();buildPanel();
+    toast("已清除發布，回到檔案預設");syncPubLabel();
+  }catch(e){toast("清除失敗："+e.message);}
+}
+function syncPubLabel(){
+  const el=$("#pubNote");if(!el)return;
+  const t=localStorage.getItem(CTIME);
+  el.textContent=(localStorage.getItem(CDATA)?(t?"上次更新："+t:""):"目前還沒發布過，訪客看到預設內容");
 }
 
 /* ============ 打氣牆 ============ */
@@ -907,6 +968,9 @@ function renderAll(){
   renderGoals();renderWallTitles();renderTerm();observe();initWallPoll();
 }
 renderAll();
+/* 開站：先顯示已快取的發布內容（load() 已套用），再向後端要一次最新的 */
+syncPubLabel();
+if(apiBase())pullContent(true);
 
 /* ============ 檯燈開關 ============ */
 function setLamp(off){
@@ -1055,6 +1119,7 @@ $("#modList").addEventListener("click",async e=>{
   }catch(err){toast(err.message);}
 });
 function openPanel(){buildPanel();$("#panel").classList.add("open");$("#scrim").classList.add("on");loadModeration();
+  syncPubLabel();pullContent(true);
   $("#pClose").focus();}
 function closePanel(){$("#panel").classList.remove("open");$("#scrim").classList.remove("on");}
 $("#pClose").addEventListener("click",closePanel);
@@ -1071,6 +1136,8 @@ $("#pSave").addEventListener("click",()=>{
   try{localStorage.setItem(KEY,JSON.stringify(DATA));renderAll();closePanel();toast("已儲存到本瀏覽器");}
   catch(e){toast("儲存失敗：空間已滿");}
 });
+$("#pPublish").addEventListener("click",publishContent);
+$("#pUnpub").addEventListener("click",unpublishContent);
 $("#pExport").addEventListener("click",()=>{
   const s=JSON.stringify(DATA,null,2);
   const io=$("#pIo");io.style.display="block";io.value=s;io.select();
@@ -1085,8 +1152,8 @@ $("#pImport").addEventListener("click",()=>{
   catch(e){toast("JSON 格式錯誤，未匯入");}
 });
 $("#pReset").addEventListener("click",()=>{
-  if(!confirm("回復到檔案裡的預設內容？（本機儲存會被清掉，留言牆與密碼保留）"))return;
-  localStorage.removeItem(KEY);DATA=deep(DEFAULT_DATA);renderAll();buildPanel();toast("已回復預設");
+  if(!confirm("放棄本機未發布的修改，回到目前正式內容？（留言牆與密碼保留）"))return;
+  localStorage.removeItem(KEY);DATA=load();renderAll();buildPanel();toast("已放棄草稿修改");
 });
 let pc=0,pt=0;
 $("#pencilBtn").addEventListener("click",()=>{
