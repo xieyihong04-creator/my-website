@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>深夜書桌 · 謝宜宏</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23120e0b'/%3E%3Cg stroke='%23e8a33d' stroke-width='2.1' stroke-linecap='round' fill='none'%3E%3Cpath d='M8 24 L9.4 19.4 L19.6 9.2 a1.9 1.9 0 0 1 2.7 0 l0.3 0.3 a1.9 1.9 0 0 1 0 2.7 L12.4 22.4 Z'/%3E%3Cpath d='M17.2 11.6 L20.4 14.8'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23120e0b'/%3E%3Cg stroke='%23e8a33d' stroke-width='2.1' stroke-linecap='round' fill='none'%3E%3Cpath d='M8 24 L9.4 19.4 L19.6 9.2 a1.9 1.9 0 0 1 2.7 0 l0.3 0.3 a1.9 1.9 0 0 1 0 2.7 L12.4 22.4 Z'/%3E%3Cpath d='M17.2 11.6 L20.4 14.8'/%3E%3C/g%3E%3C/svg%3E">
 <meta name="description" content="一位台灣高中生的成長紀錄 —— 自學程式、專案、目標與夢想。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -468,10 +466,17 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
 <div class="scrim" id="scrim"></div>
 <aside class="panel" id="panel" role="dialog" aria-label="管理面板" aria-modal="true">
   <div class="ph">
-    <div><h4>管理面板</h4><small>localStorage · 改完記得「匯出」</small></div>
+    <div><h4>管理面板</h4><small>內容存本瀏覽器 · 留言走後端</small></div>
+    <button class="pc" id="pLock" title="設定站長密碼">🔒</button>
     <button class="pc" id="pClose">關閉 ✕</button>
   </div>
-  <div class="pb" id="pBody"></div>
+  <div class="pb">
+    <div class="grp" id="modBox" style="border-color:rgba(232,163,61,.35)">
+      <label>待批准留言 · moderation</label>
+      <div id="modList"><p class="hint" style="margin:0">尚未載入。</p></div>
+    </div>
+    <div id="pBody"></div>
+  </div>
   <div class="pf">
     <button class="pri" id="pSave">儲存 (Ctrl+S)</button>
     <button id="pExport">匯出 JSON</button>
@@ -490,6 +495,7 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
    別人才會看到你更新的內容。
    ============================================================ */
 const DEFAULT_DATA = {
+  api:"https://wall-api.xieyihong04.workers.dev",
   meta:{
     name:"謝宜宏",
     kicker:"TAIPEI · 高中生 · 自學第 4 年",
@@ -564,7 +570,7 @@ const DEFAULT_DATA = {
   tgCtaLabel:"訂閱 Telegram 頻道",
   wallTitle:"打氣牆",
   wallLead:"留句話，或者告訴我哪裡寫錯了。我都會看。",
-  wallPrivacy:"這台裝置只存在你自己的瀏覽器裡（localStorage），別人看不到你的留言。全站開放後會換成共用後端。",
+  wallPrivacy:"留言會送到站長的後端，批准後才公開。站長關掉後端時，這裡自動回到本機示範模式。",
   pollQuestion:"如果只能先學一種語言，你會選？",
   pollOptions:[["Python"],["C"],["JavaScript"],["先別學，先做專案"]],
   pollBase:[19,11,15,7],
@@ -708,52 +714,129 @@ function renderWallTitles(){
   $("#pollQ").textContent=DATA.pollQuestion;
 }
 
-/* ============ 打氣牆（本機） ============ */
-function loadWall(){try{return JSON.parse(localStorage.getItem(WALL))||seedWall();}catch(e){return seedWall();}}
-function seedWall(){
-  const s=[{n:"開心的小明",k:"打氣",m:"校曆那段我用的是另一種方法，你的做法比較乾淨，學起來了！",t:Date.now()-5*864e5,h:6},
-           {n:"一位不寫 Rust 的老師",k:"建議",m:"所有權那段寫得很誠實。建議下一版把 borrow checker 報錯的實際訊息貼上去，會更有說服力。",t:Date.now()-2*864e5,h:11},
-           {n:"同為高中生的自學者",k:"提問",m:"請問你是怎麼堅持每天寫的？我都卡在第二天。",t:Date.now()-6*36e5,h:4}];
-  localStorage.setItem(WALL,JSON.stringify(s));return s;
+/* ============ 後端（Workers + D1）與雙模式 ============ */
+const ADK = "desk.admin.v1";
+let MODE = "demo";      /* api = 後端可用；demo = 本機示範 */
+let WALL_CACHE = null;  /* 留言快取 [{id,n,k,m,t,h}] */
+let POLL_STATE = null;  /* {opts:[{label,count}], voted, demo} */
+function apiBase(){
+  const u = String(DATA.api || "").trim().replace(/\/+$/, "");
+  return /^https?:\/\//.test(u) ? u : "";
 }
-function renderWall(){
-  const w=loadWall();
-  $("#gbList").innerHTML=w.length?w.map((m,i)=>`
-    <div class="msg"><button class="del" data-del="${i}" title="刪除這則（只刪本機）">del</button>
-      <header>${esc(m.n)}<time>${esc(m.k)} · ${fmt(m.t)}</time></header>
-      <p>${esc(m.m)}</p>
-      <button class="ht" data-heart="${i}">♡ ${+m.h||0}</button></div>`).join("")
-    :`<p class="hint">目前還沒人留言 —— 成為第一張便利貼。</p>`;
+function hasToken(){ return !!localStorage.getItem(ADK); }
+function adminToken(){ return localStorage.getItem(ADK) || ""; }
+async function api(path, opts = {}){
+  const res = await fetch(apiBase() + path, {
+    method: opts.method || "GET",
+    headers: opts.body ? { "content-type": "application/json" } : undefined,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    credentials: "omit", cache: "no-store"
+  });
+  let data = null; try { data = await res.json(); } catch(e){}
+  if(!res.ok) throw new Error((data && data.error) || ("HTTP " + res.status));
+  return data;
 }
+
+/* ============ 打氣牆 ============ */
 function fmt(ts){const d=new Date(ts),p=n=>String(n).padStart(2,"0");
   return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
-$("#gbList").addEventListener("click",e=>{
+function seedWall(){
+  const s=[{id:1,n:"開心的小明",k:"打氣",m:"校曆那段我用的是另一種方法，你的做法比較乾淨，學起來了！",t:Date.now()-5*864e5,h:6},
+           {id:2,n:"一位不寫 Rust 的老師",k:"建議",m:"所有權那段寫得很誠實。建議下一版把 borrow checker 報錯的實際訊息貼上去，會更有說服力。",t:Date.now()-2*864e5,h:11},
+           {id:3,n:"同為高中生的自學者",k:"提問",m:"請問你是怎麼堅持每天寫的？我都卡在第二天。",t:Date.now()-6*36e5,h:4}];
+  localStorage.setItem(WALL,JSON.stringify(s));return s;
+}
+function localWall(){
+  try{const w=JSON.parse(localStorage.getItem(WALL));if(Array.isArray(w))return w;}catch(e){}
+  return seedWall();
+}
+async function loadWall(){
+  if(!apiBase()){MODE="demo";WALL_CACHE=localWall();
+    $("#gbPrivacy").textContent="示範模式：留言只存在這台裝置的瀏覽器裡（localStorage），別人看不到。";return;}
+  try{
+    const d=await api("/api/messages");
+    MODE="api";
+    WALL_CACHE=(d.messages||[]).map(m=>({id:m.id,n:m.name,k:m.kind,m:m.body,t:m.created_at,h:+m.hearts||0}));
+  }catch(e){
+    MODE="demo";WALL_CACHE=localWall();
+    $("#gbPrivacy").textContent="連線不上後端（"+e.message+"），暫時顯示本機示範內容。";
+  }
+}
+function renderWall(){
+  if(WALL_CACHE===null){$("#gbList").innerHTML='<p class="hint">載入中…</p>';return;}
+  const w=WALL_CACHE;
+  $("#gbList").innerHTML=w.length?w.map((mm,i)=>`
+    <div class="msg">${MODE==="demo"?`<button class="del" data-del="${i}" title="刪除這則（只刪本機）">del</button>`:""}
+      <header>${esc(mm.n)}<time>${esc(mm.k)} · ${fmt(mm.t)}${MODE==="api"?"":" · 示範"}</time></header>
+      <p>${esc(mm.m)}</p>
+      <button class="ht" data-i="${i}">♡ ${+mm.h||0}</button></div>`).join("")
+    :`<p class="hint">目前還沒人留言 —— 成為第一張便利貼。</p>`;
+}
+$("#gbList").addEventListener("click",async e=>{
   const t=e.target.closest("button");if(!t)return;
-  const w=loadWall();
-  if(t.dataset.heart!=null){w[+t.dataset.heart].h=(+w[+t.dataset.heart].h||0)+1;}
-  else if(t.dataset.del!=null){w.splice(+t.dataset.del,1);}
-  else return;
-  localStorage.setItem(WALL,JSON.stringify(w));renderWall();
+  if(t.classList.contains("del")){
+    const w=localWall();w.splice(+t.dataset.del,1);
+    localStorage.setItem(WALL,JSON.stringify(w));WALL_CACHE=w;renderWall();return;
+  }
+  const i=+t.dataset.i;const m=(WALL_CACHE||[])[i];if(!m)return;
+  if(MODE!=="api"){
+    const w=localWall();if(w[i]){w[i].h=(+w[i].h||0)+1;
+      localStorage.setItem(WALL,JSON.stringify(w));WALL_CACHE=w;renderWall();}
+    return;
+  }
+  try{
+    const d=await api("/api/heart",{method:"POST",body:{id:m.id}});
+    m.h=+d.hearts||0;renderWall();
+    if(!d.added)toast("你已經點過這則的愛心了");
+  }catch(err){toast(err.message);}
 });
 $("#gbMsg").addEventListener("input",e=>{$("#gbCount").textContent=`${e.target.value.length} / 200`;});
-$("#gbForm").addEventListener("submit",e=>{
+$("#gbForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const msg=$("#gbMsg").value.trim();if(!msg)return;
-  const w=loadWall();
-  w.unshift({n:$("#gbName").value.trim()||"匿名同學",k:$("#gbKind").value,m:msg,t:Date.now(),h:0});
-  localStorage.setItem(WALL,JSON.stringify(w.slice(0,60)));
-  $("#gbForm").reset();$("#gbCount").textContent="0 / 200";renderWall();toast("已貼上（存在本瀏覽器）");
+  const name=$("#gbName").value.trim(),kind=$("#gbKind").value;
+  const btn=$("#gbForm button[type=submit]");
+  if(MODE!=="api"){
+    const w=localWall();w.unshift({id:Date.now(),n:name||"匿名同學",k:kind,m:msg,t:Date.now(),h:0});
+    localStorage.setItem(WALL,JSON.stringify(w.slice(0,60)));WALL_CACHE=w;
+    $("#gbForm").reset();$("#gbCount").textContent="0 / 200";renderWall();
+    toast("示範模式：只存在這台裝置");return;
+  }
+  btn.disabled=true;
+  try{
+    const d=await api("/api/messages",{method:"POST",body:{name,kind,body:msg}});
+    $("#gbForm").reset();$("#gbCount").textContent="0 / 200";
+    if(d.pending){toast("已送出——站長批准後才會公開");}
+    else{const r=d.message;
+      WALL_CACHE.unshift({id:r.id,n:r.name,k:r.kind,m:r.body,t:r.created_at,h:0});renderWall();
+      toast("已貼上牆");}
+  }catch(err){toast(err.message);}
+  btn.disabled=false;
 });
 
-/* ============ 投票（本機） ============ */
-function loadPoll(){
-  const base=(DATA.pollOptions||[]).map((o,i)=>({label:o[0],count:(DATA.pollBase&&DATA.pollBase[i])||0}));
+/* ============ 小投票 ============ */
+function pollBase(){return (DATA.pollOptions||[]).map(o=>({label:o[0],count:0}));}
+function localPoll(){
   try{const p=JSON.parse(localStorage.getItem(POLL));
-    if(p&&Array.isArray(p.opts)&&p.opts.length===base.length) return p;}catch(e){}
-  return {opts:base,voted:-1};
+    if(p&&Array.isArray(p.opts)&&p.opts.length===(DATA.pollOptions||[]).length)return p;}catch(e){}
+  return {opts:pollBase().map((o,i)=>(o.count=(DATA.pollBase&&+DATA.pollBase[i])||0,o)),voted:-1};
+}
+async function loadPoll(){
+  const base=pollBase();
+  const useDemo=()=>{const p=localPoll();
+    POLL_STATE={opts:base.map((o,i)=>({label:o.label,count:(p.opts[i]&&+p.opts[i].count)||0})),
+      voted:(typeof p.voted==="number"?p.voted:-1),demo:true};};
+  if(MODE!=="api"){useDemo();return;}
+  try{
+    const d=await api("/api/poll");
+    const map={};(d.counts||[]).forEach(c=>{map[+c.choice]=+c.c;});
+    POLL_STATE={opts:base.map((o,i)=>({label:o.label,count:map[i]||0})),
+      voted:(d.mine==null?-1:+d.mine),demo:false};
+  }catch(e){useDemo();}
 }
 function renderPoll(){
-  const p=loadPoll();const total=p.opts.reduce((a,o)=>a+ +o.count,0)||1;
+  const p=POLL_STATE||localPoll();
+  const total=p.opts.reduce((a,o)=>a+ +o.count,0)||1;
   $("#pollBox").innerHTML=p.opts.map((o,i)=>{
     const pc=Math.round(o.count/total*100);
     const mine=p.voted===i;
@@ -761,19 +844,23 @@ function renderPoll(){
       <span>${p.voted>=0?(mine?"▸ ":"")+esc(o.label):esc(o.label)}</span>
       ${p.voted>=0?`<b>${pc}%</b>`:""}</button>`;}).join("");
   $("#pollNote").textContent=p.voted>=0
-    ? `共 ${total} 票（本機計數）。換瀏覽器會歸零，所以我把它當成練習用。`
-    : "選一個，然後告訴我你的理由 —— 留言區比較適合。";
+    ?(p.demo?`共 ${total} 票（本機計數）。`:`全站共 ${total} 票。一人一票按網路位置判斷，學校網路共用位址時可能不准，別介意。`)
+    :"選一個，然後告訴我你的理由 —— 留言區比較適合。";
 }
-$("#pollBox").addEventListener("click",e=>{
+$("#pollBox").addEventListener("click",async e=>{
   const b=e.target.closest(".opt");if(!b||b.disabled)return;
-  const p=loadPoll();const i=+b.dataset.i;
-  if(p.voted>=0)return;
-  p.opts[i].count++;p.voted=i;
-  localStorage.setItem(POLL,JSON.stringify(p));renderPoll();
-  $$("#pollBox .opt").forEach((el,k)=>{el.disabled=true;
-    const t=p.opts.reduce((a,o)=>a+ +o.count,0)||1;
-    el.style.setProperty("--w",Math.round(p.opts[k].count/t*100)+"%");});
+  const i=+b.dataset.i;const p=POLL_STATE;if(!p||p.voted>=0)return;
+  if(p.demo){
+    p.opts[i].count++;p.voted=i;
+    localStorage.setItem(POLL,JSON.stringify({opts:p.opts,voted:i}));renderPoll();return;
+  }
+  try{
+    await api("/api/poll",{method:"POST",body:{choice:i}});
+    await loadPoll();renderPoll();
+    if(POLL_STATE.voted!==i)toast("你之前已經投過一次了，以第一票為準");
+  }catch(err){toast(err.message);}
 });
+async function initWallPoll(){await loadWall();renderWall();await loadPoll();renderPoll();}
 
 /* ============ terminal 打字動效 ============ */
 function termLines(){
@@ -817,7 +904,7 @@ function observe(){
 
 function renderAll(){
   renderHero();renderAbout();renderJourney();renderSkills();renderProjects();
-  renderGoals();renderWallTitles();renderWall();renderPoll();renderTerm();observe();
+  renderGoals();renderWallTitles();renderTerm();observe();initWallPoll();
 }
 renderAll();
 
@@ -854,7 +941,8 @@ const SCHEMA=[
   {g:"徽章",t:"list",p:"badges",l:"徽章",
     f:[["label","中央文字","text"],["name","名稱","text"],["gotStr","已取得（true/false）","bool"]]},
   {g:"互動區",t:"fields",f:[["wallTitle","打氣牆標題","text"],["wallLead","打氣牆說明","area"],
-    ["wallPrivacy","隱私說明","area"],["pollQuestion","投票題目","text"]]},
+    ["wallPrivacy","隱私說明","area"],["pollQuestion","投票題目","text"],
+    ["api","後端 API URL（留空＝本機示範）","text"]]},
   {g:"投票選項",t:"list",p:"pollOptions",l:"選項",f:[["","選項","text"]]}
 ];
 function getPath(p){return p.split(".").reduce((o,k)=>(o==null?undefined:o[k]),DATA);}
@@ -933,10 +1021,51 @@ function buildPanel(){
     body.appendChild(wrap);
   });
 }
-function openPanel(){buildPanel();$("#panel").classList.add("open");$("#scrim").classList.add("on");
+async function loadModeration(){
+  const box=$("#modList");
+  if(!apiBase()){box.innerHTML=`<p class="hint" style="margin:0">示範模式沒有後端，不需批准。</p>`;return;}
+  const tk=adminToken();
+  if(!tk){box.innerHTML=`<p class="hint" style="margin:0">先按下方「🔒 密碼」填入站長密碼，才能檢視與批准留言。</p>`;return;}
+  box.innerHTML=`<p class="hint" style="margin:0">載入中…</p>`;
+  try{
+    const d=await api("/api/admin/list?token="+encodeURIComponent(tk));
+    const p=d.pending||[];
+    box.innerHTML=p.length?p.map(m=>`
+      <div class="item" style="margin-bottom:10px">
+        <div style="font-size:.8rem;color:var(--paper-dim);margin-bottom:4px">#${m.id} · ${esc(m.name)} · ${esc(m.kind)} · ${esc((m.created_at||"").slice(0,10))}</div>
+        <div style="font-size:.86rem;color:var(--paper);margin-bottom:8px">${esc(m.body)}</div>
+        <button class="pc" data-approve="${m.id}" style="font-size:.66rem;padding:4px 10px">批准公開</button>
+        <button class="pc" data-reject="${m.id}" style="font-size:.66rem;padding:4px 10px;margin-left:6px">刪除</button>
+      </div>`).join("")
+      :`<p class="hint" style="margin:0">目前沒有待批准的留言。</p>`;
+  }catch(e){box.innerHTML=`<p class="hint" style="margin:0;color:#e58a7a">載入失敗：${esc(e.message)}</p>`;}
+}
+$("#modList").addEventListener("click",async e=>{
+  const t=e.target.closest("button");if(!t)return;
+  const tk=adminToken();
+  try{
+    if(t.dataset.approve!=null){
+      await api("/api/admin/approve",{method:"POST",body:{id:+t.dataset.approve,token:tk}});
+      toast("已批准並公開");await loadWall();renderWall();
+    }else{
+      await api("/api/admin/delete",{method:"POST",body:{id:+t.dataset.reject,token:tk}});
+      toast("已刪除");
+    }
+    loadModeration();
+  }catch(err){toast(err.message);}
+});
+function openPanel(){buildPanel();$("#panel").classList.add("open");$("#scrim").classList.add("on");loadModeration();
   $("#pClose").focus();}
 function closePanel(){$("#panel").classList.remove("open");$("#scrim").classList.remove("on");}
 $("#pClose").addEventListener("click",closePanel);
+$("#pLock").addEventListener("click",()=>{
+  const cur=localStorage.getItem(ADK);
+  const v=prompt(cur?"站長密碼（留空並確定＝清除）":"輸入站長密碼：",cur||"");
+  if(v===null)return;
+  if(v.trim()){localStorage.setItem(ADK,v.trim());toast("密碼已存進這台瀏覽器");}
+  else{localStorage.removeItem(ADK);toast("已清除密碼");}
+  loadModeration();
+});
 $("#scrim").addEventListener("click",closePanel);
 $("#pSave").addEventListener("click",()=>{
   try{localStorage.setItem(KEY,JSON.stringify(DATA));renderAll();closePanel();toast("已儲存到本瀏覽器");}
@@ -956,7 +1085,7 @@ $("#pImport").addEventListener("click",()=>{
   catch(e){toast("JSON 格式錯誤，未匯入");}
 });
 $("#pReset").addEventListener("click",()=>{
-  if(!confirm("回復到檔案裡的預設內容？（本機儲存會被清掉，留言牆保留）"))return;
+  if(!confirm("回復到檔案裡的預設內容？（本機儲存會被清掉，留言牆與密碼保留）"))return;
   localStorage.removeItem(KEY);DATA=deep(DEFAULT_DATA);renderAll();buildPanel();toast("已回復預設");
 });
 let pc=0,pt=0;
