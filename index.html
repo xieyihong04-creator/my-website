@@ -620,12 +620,36 @@ function inline(s){
 const IG_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">'
   +'<rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4"/>'
   +'<circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>';
-/* 允許少量 HTML（關於我段落），其餘一律走 inline() */
+/* 關於我段落允許少量 HTML，其餘一律走 inline()。
+   白名單＋浏览器自己解析，失敗方向是「刪掉」：
+
+   舊的黑名單只刪帶引號的事件屬性，<img/src=x/onerror=alert(1)>、
+   <svg onload=...>、<input autofocus onfocus=...> 三種無引號寫法都能穿過去。 */
+const RICH_ALLOW={span:["class"],em:[],i:[],b:[],strong:[],code:[],a:["href"]};
+const RICH_DROP={script:1,style:1,iframe:1,object:1,embed:1,link:1,meta:1,form:1,svg:1};
 function rich(s){
   const t=String(s==null?"":s);
-  return t.includes("<span")||t.includes("<em")||t.includes("<b>")
-    ? t.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/\son\w+="[^"]*"/gi,"").replace(/javascript:/gi,"")
-    : inline(t);
+  if(t.indexOf("<")<0) return inline(t);
+  const tpl=document.createElement("template");
+  tpl.innerHTML=t;
+  /* 後序：先把子孫清乾淨，再決定這個節點留不留。
+     若先剝殼再處理，被提上來的子節點會逃過這輪掃描。 */
+  (function sanitize(parent){
+    for(const el of Array.from(parent.children)){
+      sanitize(el);
+      const tag=el.tagName.toLowerCase();
+      if(RICH_DROP[tag]){ el.remove(); continue; }
+      const ok=RICH_ALLOW[tag];
+      if(!ok){ el.replaceWith(...el.childNodes); continue; }   /* 不認識的標籤：留文字、丟殼 */
+      for(const a of Array.from(el.attributes)) if(ok.indexOf(a.name)<0) el.removeAttribute(a.name);
+      if(tag==="a"){
+        el.setAttribute("href",safeUrl(el.getAttribute("href")));
+        el.setAttribute("rel","noopener noreferrer");
+        el.setAttribute("target","_blank");
+      }
+    }
+  })(tpl.content);
+  return tpl.innerHTML;
 }
 function deep(o){return JSON.parse(JSON.stringify(o));}
 /* 舊版（Telegram）已發布內容的欄位名稱遷移：新欄位存在時以新欄位為準 */
@@ -761,7 +785,7 @@ function renderWallTitles(){
 }
 
 /* ============ 後端（Workers + D1）與雙模式 ============ */
-const ADK = "desk.admin.v1", ADK_OK = ADK + ".ok";
+const ADK = "desk.sess.v2", ADK_OK = ADK + ".ok", ADK_OLD = "desk.admin.v1";
 let MODE = "demo";      /* api = 後端可用；demo = 本機示範 */
 let WALL_CACHE = null;  /* 留言快取 [{id,n,k,m,t,h}] */
 let POLL_STATE = null;  /* {opts:[{label,count}], voted, demo} */
@@ -769,7 +793,8 @@ function apiBase(){
   const u = String(DATA.api || "").trim().replace(/\/+$/, "");
   return /^https?:\/\//.test(u) ? u : "";
 }
-function adminToken(){ return sessionStorage.getItem(ADK) || ""; }   /* 永不讀 localStorage，關分頁就沒了 */
+/* 存的是後端換發的 15 分鐘短期憑證，不是站長密碼本身；永不讀 localStorage，關分頁就沒了 */
+function adminToken(){ return sessionStorage.getItem(ADK) || ""; }
 function unlocked(){ return sessionStorage.getItem(ADK_OK) === "1"; }
 /* 開面板前請後端驗證密碼：密碼存在 sessionStorage（關分頁就消失），
    不進檔案、不被匯出；驗證通過與否後端都不回傳任何資料。 */
@@ -778,9 +803,11 @@ async function gateUnlock(){
   const tk=(prompt(cur?"站長密碼（再確認一次）":"站長密碼：","")||"").trim();   /* 不預填，避免旁人看到 */
   if(!tk){toast("需要站長密碼才能開面板");return false;}
   try{
-    await api("/api/admin/auth",{method:"POST",body:{token:tk}});
-    sessionStorage.setItem(ADK,tk);sessionStorage.setItem(ADK_OK,"1");
-    localStorage.removeItem(ADK);   /* 舊版曾長期儲存，這裡收回來 */
+    const r=await api("/api/admin/auth",{method:"POST",body:{token:tk}});
+    sessionStorage.setItem(ADK,r.session);sessionStorage.setItem(ADK_OK,"1");
+    /* 主密碼只在這一次請求裡出現過，用完不落地；舊版遗留一律收回 */
+    localStorage.removeItem(ADK);localStorage.removeItem(ADK_OLD);
+    sessionStorage.removeItem(ADK_OLD);
     return true;
   }catch(e){
     sessionStorage.removeItem(ADK_OK);
@@ -796,12 +823,12 @@ function syncLock(){
   b.title=on?"目前已解鎖，按一下上鎖":"輸入站長密碼解鎖";
 }
 function lockPanel(){
-  sessionStorage.removeItem(ADK_OK);sessionStorage.removeItem(ADK);localStorage.removeItem(ADK);
+  sessionStorage.removeItem(ADK_OK);sessionStorage.removeItem(ADK);localStorage.removeItem(ADK);localStorage.removeItem(ADK_OLD);sessionStorage.removeItem(ADK_OLD);
   closePanel();syncLock();toast("已上鎖");
 }
 /* 後端回說密碼不對（例如你已換掉 ADMIN_TOKEN）→ 立刻收回解鎖狀態 */
 function authBad(msg){
-  if(!/不正確|401/.test(String(msg||"")))return false;
+  if(!/不正確|憑證無效|已過期|401/.test(String(msg||"")))return false;
   sessionStorage.removeItem(ADK_OK);syncLock();return true;
 }
 async function api(path, opts = {}){
@@ -846,7 +873,7 @@ async function publishContent(){
   if(s.length>115000){toast("內容太大（"+s.length+" 字元，上限約 115000）");return;}
   const btn=$("#pPublish");if(btn)btn.disabled=true;
   try{
-    await api("/api/admin/content",{method:"POST",body:{token:tk,data:payload}});
+    await api("/api/admin/content",{method:"POST",body:{session:tk,data:payload}});
     localStorage.setItem(CDATA,s);localStorage.setItem(CTIME,"剛剛發布");
     /* 發布後內容已等於正式資料，草稿只留 api 覆蓋，避免兩層重複 */
     localStorage.setItem(KEY,JSON.stringify({api:DATA.api}));
@@ -859,7 +886,7 @@ async function unpublishContent(){
   const tk=adminToken();if(!unlocked()||!tk){toast("面板未解鎖，無法取消發布");return;}
   if(!confirm("清除已發布的內容？網站會回到 GitHub 檔案裡的預設文字。"))return;
   try{
-    await api("/api/admin/content",{method:"POST",body:{token:tk,data:null}});
+    await api("/api/admin/content",{method:"POST",body:{session:tk,data:null}});
     localStorage.removeItem(CDATA);localStorage.removeItem(CTIME);
     DATA=load();renderAll();buildPanel();
     toast("已清除發布，回到檔案預設");syncPubLabel();
@@ -1165,7 +1192,7 @@ async function loadModeration(){
   if(!unlocked()||!tk){box.innerHTML=`<p class="hint" style="margin:0">尚未解鎖，點右上 🔒 輸入站長密碼後才能檢視與批准留言。</p>`;return;}
   box.innerHTML=`<p class="hint" style="margin:0">載入中…</p>`;
   try{
-    const d=await api("/api/admin/list?token="+encodeURIComponent(tk));
+    const d=await api("/api/admin/list?session="+encodeURIComponent(tk));
     const p=d.pending||[], pub=d.published||[];
     const row=(m,btns)=>`
       <div class="item" style="margin-bottom:10px">
@@ -1192,10 +1219,10 @@ $("#modList").addEventListener("click",async e=>{
   const tk=adminToken();if(!unlocked()||!tk){toast("面板未解鎖");return;}
   try{
     if(t.dataset.approve!=null){
-      await api("/api/admin/approve",{method:"POST",body:{id:+t.dataset.approve,token:tk}});
+      await api("/api/admin/approve",{method:"POST",body:{id:+t.dataset.approve,session:tk}});
       toast("已批准並公開");await loadWall();renderWall();
     }else{
-      await api("/api/admin/delete",{method:"POST",body:{id:+t.dataset.reject,token:tk}});
+      await api("/api/admin/delete",{method:"POST",body:{id:+t.dataset.reject,session:tk}});
       toast("已刪除");await loadWall();renderWall();
     }
     loadModeration();
@@ -1247,7 +1274,7 @@ document.addEventListener("keydown",e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"&&$("#panel").classList.contains("open")){
     e.preventDefault();$("#pSave").click();}
 });
-localStorage.removeItem(ADK);   /* 清掉舊版可能長期存過的密碼 */
+localStorage.removeItem(ADK);localStorage.removeItem(ADK_OLD);sessionStorage.removeItem(ADK_OLD);   /* 清掉舊版可能長期存過的密碼 */
 if(location.hash==="#desk-admin"){history.replaceState(null,"","#");setTimeout(openPanel,400);}
 
 /* reduced-motion 切換時重繪 */
