@@ -722,7 +722,7 @@ function renderWallTitles(){
 }
 
 /* ============ 後端（Workers + D1）與雙模式 ============ */
-const ADK = "desk.admin.v1";
+const ADK = "desk.admin.v1", ADK_OK = ADK + ".ok";
 let MODE = "demo";      /* api = 後端可用；demo = 本機示範 */
 let WALL_CACHE = null;  /* 留言快取 [{id,n,k,m,t,h}] */
 let POLL_STATE = null;  /* {opts:[{label,count}], voted, demo} */
@@ -730,7 +730,41 @@ function apiBase(){
   const u = String(DATA.api || "").trim().replace(/\/+$/, "");
   return /^https?:\/\//.test(u) ? u : "";
 }
-function adminToken(){ return localStorage.getItem(ADK) || ""; }
+function adminToken(){ return sessionStorage.getItem(ADK) || localStorage.getItem(ADK) || ""; }
+function unlocked(){ return sessionStorage.getItem(ADK_OK) === "1"; }
+/* 開面板前請後端驗證密碼：密碼存在 sessionStorage（關分頁就消失），
+   不進檔案、不被匯出；驗證通過與否後端都不回傳任何資料。 */
+async function gateUnlock(){
+  const cur=adminToken();
+  const tk=(prompt(cur?"站長密碼（再確認一次）":"站長密碼：",cur||"")||"").trim();
+  if(!tk){toast("需要站長密碼才能開面板");return false;}
+  try{
+    await api("/api/admin/auth",{method:"POST",body:{token:tk}});
+    sessionStorage.setItem(ADK,tk);sessionStorage.setItem(ADK_OK,"1");
+    localStorage.removeItem(ADK);   /* 舊版曾長期儲存，這裡收回來 */
+    return true;
+  }catch(e){
+    sessionStorage.removeItem(ADK_OK);
+    toast(/不正確/.test(e.message)?"密碼不對，開不了面板":"開不了："+e.message);
+    return false;
+  }
+}
+async function tryOpenPanel(){openPanel();}
+function syncLock(){
+  const b=$("#pLock");if(!b)return;
+  const on=unlocked();
+  b.textContent=on?"🔓":"🔒";
+  b.title=on?"目前已解鎖，按一下上鎖":"輸入站長密碼解鎖";
+}
+function lockPanel(){
+  sessionStorage.removeItem(ADK_OK);sessionStorage.removeItem(ADK);localStorage.removeItem(ADK);
+  closePanel();syncLock();toast("已上鎖");
+}
+/* 後端回說密碼不對（例如你已換掉 ADMIN_TOKEN）→ 立刻收回解鎖狀態 */
+function authBad(msg){
+  if(!/不正確|401/.test(String(msg||"")))return false;
+  sessionStorage.removeItem(ADK_OK);syncLock();return true;
+}
 async function api(path, opts = {}){
   const res = await fetch(apiBase() + path, {
     method: opts.method || "GET",
@@ -766,7 +800,7 @@ async function pullContent(silent){
 async function publishContent(){
   if(!apiBase()){toast("沒設後端網址，無法發布");return;}
   const tk=adminToken();
-  if(!tk){toast("先按右上角 🔒 輸入站長密碼才能發布");return;}
+  if(!unlocked()||!tk){toast("面板未解鎖，無法發布");return;}
   if(!confirm("把目前面板裡的內容發布給所有訪客？\n（檔案裡的重預設值仍保留在 GitHub）"))return;
   const payload=deep(DATA);delete payload.api;
   const s=JSON.stringify(payload);
@@ -783,7 +817,7 @@ async function publishContent(){
   if(btn)btn.disabled=false;
 }
 async function unpublishContent(){
-  const tk=adminToken();if(!tk){toast("先按右上角 🔒 輸入站長密碼");return;}
+  const tk=adminToken();if(!unlocked()||!tk){toast("面板未解鎖，無法取消發布");return;}
   if(!confirm("清除已發布的內容？網站會回到 GitHub 檔案裡的預設文字。"))return;
   try{
     await api("/api/admin/content",{method:"POST",body:{token:tk,data:null}});
@@ -969,7 +1003,7 @@ function renderAll(){
 }
 renderAll();
 /* 開站：先顯示已快取的發布內容（load() 已套用），再向後端要一次最新的 */
-syncPubLabel();
+syncPubLabel();syncLock();
 if(apiBase())pullContent(true);
 
 /* ============ 檯燈開關 ============ */
@@ -1089,7 +1123,7 @@ async function loadModeration(){
   const box=$("#modList");
   if(!apiBase()){box.innerHTML=`<p class="hint" style="margin:0">示範模式沒有後端，不需批准。</p>`;return;}
   const tk=adminToken();
-  if(!tk){box.innerHTML=`<p class="hint" style="margin:0">先按下方「🔒 密碼」填入站長密碼，才能檢視與批准留言。</p>`;return;}
+  if(!unlocked()||!tk){box.innerHTML=`<p class="hint" style="margin:0">尚未解鎖，點右上 🔒 輸入站長密碼後才能檢視與批准留言。</p>`;return;}
   box.innerHTML=`<p class="hint" style="margin:0">載入中…</p>`;
   try{
     const d=await api("/api/admin/list?token="+encodeURIComponent(tk));
@@ -1111,11 +1145,12 @@ async function loadModeration(){
         <button class="pc" data-reject="${m.id}" style="font-size:.66rem;padding:4px 10px">下架刪除</button>
         <span style="font-size:.66rem;color:var(--paper-dim);margin-left:6px">♡ ${+m.hearts||0}</span>`)).join("")
         :`<p class="hint" style="margin:0">還沒有公開的留言。</p>`);
-  }catch(e){box.innerHTML=`<p class="hint" style="margin:0;color:#e58a7a">載入失敗：${esc(e.message)}</p>`;}
+  }catch(e){box.innerHTML=`<p class="hint" style="margin:0;color:#e58a7a">載入失敗：${esc(e.message)}</p>`;
+    if(authBad(e.message))box.innerHTML=`<p class="hint" style="margin:0;color:#e58a7a">密碼已失效，請點右上 🔒 重新輸入站長密碼。</p>`;}
 }
 $("#modList").addEventListener("click",async e=>{
   const t=e.target.closest("button");if(!t)return;
-  const tk=adminToken();
+  const tk=adminToken();if(!unlocked()||!tk){toast("面板未解鎖");return;}
   try{
     if(t.dataset.approve!=null){
       await api("/api/admin/approve",{method:"POST",body:{id:+t.dataset.approve,token:tk}});
@@ -1127,18 +1162,16 @@ $("#modList").addEventListener("click",async e=>{
     loadModeration();
   }catch(err){toast(err.message);}
 });
-function openPanel(){buildPanel();$("#panel").classList.add("open");$("#scrim").classList.add("on");loadModeration();
-  syncPubLabel();pullContent(true);
+function openPanel(){
+  if(apiBase()&&!unlocked()){gateUnlock().then(ok=>{if(ok)openPanel();});return;}
+  buildPanel();$("#panel").classList.add("open");$("#scrim").classList.add("on");loadModeration();
+  syncPubLabel();pullContent(true);syncLock();
   $("#pClose").focus();}
 function closePanel(){$("#panel").classList.remove("open");$("#scrim").classList.remove("on");}
 $("#pClose").addEventListener("click",closePanel);
 $("#pLock").addEventListener("click",()=>{
-  const cur=localStorage.getItem(ADK);
-  const v=prompt(cur?"站長密碼（留空並確定＝清除）":"輸入站長密碼：",cur||"");
-  if(v===null)return;
-  if(v.trim()){localStorage.setItem(ADK,v.trim());toast("密碼已存進這台瀏覽器");}
-  else{localStorage.removeItem(ADK);toast("已清除密碼");}
-  loadModeration();
+  if(unlocked()){lockPanel();return;}
+  gateUnlock().then(ok=>{if(ok){toast("已解鎖");loadModeration();syncPubLabel();}});
 });
 $("#scrim").addEventListener("click",closePanel);
 $("#pSave").addEventListener("click",()=>{
