@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# build output
+.next/
+out/
+build/
+dist/
+
+# wrangler / cloudflare 本機狀態
+.wrangler/
+.wrangler/tmp/
+.env
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+
+# editors / os
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# 一次性工具产物
+*-review.json
