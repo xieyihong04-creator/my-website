@@ -472,7 +472,7 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
   </div>
   <div class="pb">
     <div class="grp" id="modBox" style="border-color:rgba(232,163,61,.35)">
-      <label>待批准留言 · moderation</label>
+      <label>留言審核 · moderation</label>
       <div id="modList"><p class="hint" style="margin:0">尚未載入。</p></div>
     </div>
     <div id="pBody"></div>
@@ -1093,15 +1093,24 @@ async function loadModeration(){
   box.innerHTML=`<p class="hint" style="margin:0">載入中…</p>`;
   try{
     const d=await api("/api/admin/list?token="+encodeURIComponent(tk));
-    const p=d.pending||[];
-    box.innerHTML=p.length?p.map(m=>`
+    const p=d.pending||[], pub=d.published||[];
+    const row=(m,btns)=>`
       <div class="item" style="margin-bottom:10px">
         <div style="font-size:.8rem;color:var(--paper-dim);margin-bottom:4px">#${m.id} · ${esc(m.name)} · ${esc(m.kind)} · ${esc((m.created_at||"").slice(0,10))}</div>
         <div style="font-size:.86rem;color:var(--paper);margin-bottom:8px">${esc(m.body)}</div>
+        ${btns}
+      </div>`;
+    box.innerHTML=
+      `<div style="font-size:.66rem;letter-spacing:.14em;color:var(--amber);margin-bottom:8px">待批准 ${p.length}</div>`
+      +(p.length?p.map(m=>row(m,`
         <button class="pc" data-approve="${m.id}" style="font-size:.66rem;padding:4px 10px">批准公開</button>
-        <button class="pc" data-reject="${m.id}" style="font-size:.66rem;padding:4px 10px;margin-left:6px">刪除</button>
-      </div>`).join("")
-      :`<p class="hint" style="margin:0">目前沒有待批准的留言。</p>`;
+        <button class="pc" data-reject="${m.id}" style="font-size:.66rem;padding:4px 10px;margin-left:6px">刪除</button>`)).join("")
+        :`<p class="hint" style="margin:0 0 14px">目前沒有待批准的留言。</p>`)
+      +`<div style="font-size:.66rem;letter-spacing:.14em;color:var(--amber);margin:14px 0 8px">已公開 ${pub.length}</div>`
+      +(pub.length?pub.map(m=>row(m,`
+        <button class="pc" data-reject="${m.id}" style="font-size:.66rem;padding:4px 10px">下架刪除</button>
+        <span style="font-size:.66rem;color:var(--paper-dim);margin-left:6px">♡ ${+m.hearts||0}</span>`)).join("")
+        :`<p class="hint" style="margin:0">還沒有公開的留言。</p>`);
   }catch(e){box.innerHTML=`<p class="hint" style="margin:0;color:#e58a7a">載入失敗：${esc(e.message)}</p>`;}
 }
 $("#modList").addEventListener("click",async e=>{
@@ -1113,7 +1122,7 @@ $("#modList").addEventListener("click",async e=>{
       toast("已批准並公開");await loadWall();renderWall();
     }else{
       await api("/api/admin/delete",{method:"POST",body:{id:+t.dataset.reject,token:tk}});
-      toast("已刪除");
+      toast("已刪除");await loadWall();renderWall();
     }
     loadModeration();
   }catch(err){toast(err.message);}
