@@ -730,13 +730,13 @@ function apiBase(){
   const u = String(DATA.api || "").trim().replace(/\/+$/, "");
   return /^https?:\/\//.test(u) ? u : "";
 }
-function adminToken(){ return sessionStorage.getItem(ADK) || localStorage.getItem(ADK) || ""; }
+function adminToken(){ return sessionStorage.getItem(ADK) || ""; }   /* 永不讀 localStorage，關分頁就沒了 */
 function unlocked(){ return sessionStorage.getItem(ADK_OK) === "1"; }
 /* 開面板前請後端驗證密碼：密碼存在 sessionStorage（關分頁就消失），
    不進檔案、不被匯出；驗證通過與否後端都不回傳任何資料。 */
 async function gateUnlock(){
   const cur=adminToken();
-  const tk=(prompt(cur?"站長密碼（再確認一次）":"站長密碼：",cur||"")||"").trim();
+  const tk=(prompt(cur?"站長密碼（再確認一次）":"站長密碼：","")||"").trim();   /* 不預填，避免旁人看到 */
   if(!tk){toast("需要站長密碼才能開面板");return false;}
   try{
     await api("/api/admin/auth",{method:"POST",body:{token:tk}});
@@ -1208,6 +1208,7 @@ document.addEventListener("keydown",e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"&&$("#panel").classList.contains("open")){
     e.preventDefault();$("#pSave").click();}
 });
+localStorage.removeItem(ADK);   /* 清掉舊版可能長期存過的密碼 */
 if(location.hash==="#desk-admin"){history.replaceState(null,"","#");setTimeout(openPanel,400);}
 
 /* reduced-motion 切換時重繪 */
