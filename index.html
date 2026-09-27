@@ -526,15 +526,15 @@ const DEFAULT_DATA = {
     grade:"高二生",
     instagram:"https://www.instagram.com/xie.ih/",
     igHandle:"@xie.ih",
-    igNote:"卡關的過程用拍的最直接：凌晨三點的終端機畫面、寫到一半的白板、還有終於跑成功那張截圖。不精修，看得懂我在折騰什麼就好。",
-    igStats:[["內容","專案進度 / debug 現場"],["頻率","一週 2–3 則"],["交流","私訊都看，一起自學的舉手"]]
+    igNote:"我 IG 上拍的都是夜裡拍的東西：維多利亞港的燈、別人施放的煙火、中秋那天的月亮。跟這個網站一樣，我醒著的時間多半在晚上——差的是，這裡放程式，那邊放光。是私人帳號，想看的按追蹤等我通過。",
+    igStats:[["內容","夜景、煙火、生活片段"],["頻率","只有 2 則，還在累積"],["帳號","私人 · 按追蹤等我通過"]]
   },
   aboutTitle:"關於我",
   about:[
     "我是謝宜宏，台中的高二生。第一次寫程式是國中資訊課，跟著抄了一段老師螢幕上的程式碼，把 60 改成 600 就開心了一整堂課——那是我最早記得的「我可以讓東西聽話」的感覺。",
     "現在我一天能寫三個小時，假日可以整個下午埋在電腦前。沒有老師盯、沒有作業分數，支撐我的是很單純的一件事：<span class=\"mark\">東西跑起來的那一刻真的很爽。</span>",
     "我的目標是資訊工程相關科系。我知道自己缺很多：演算法沒系統地學過、英文文件讀得慢、資料庫完全空白。這個頁面就是為了讓這些缺口被看見，然後一個一個補掉。",
-    "如果你也是學生、也在自學，歡迎在 Instagram 找我——同一個人卡關，比較不丟臉。"
+    "如果你也是學生、也在自學，歡迎在 Instagram 找我（私人帳號，按追蹤等我通過）——卡關的是同一個人，比較不丟臉。"
   ],
   journeyTitle:"我的程式之路",
   journeyLead:"不是履歷，是時間軸。越近的越長，因為學得越多、忘得越快。",
@@ -585,8 +585,8 @@ const DEFAULT_DATA = {
     {label:"0→1",name:"從零做完專案",got:true},
     {label:"CS",name:"資工申請上線",got:false}
   ],
-  igTitle:"學習過程的實時後台",
-  igCtaLabel:"到 Instagram 看我卡關",
+  igTitle:"書桌以外的夜",
+  igCtaLabel:"到 Instagram 看我的夜",
   wallTitle:"打氣牆",
   wallLead:"留句話，或者告訴我哪裡寫錯了。我都會看。",
   wallPrivacy:"留言會送到站長的後端，批准後才公開。站長關掉後端時，這裡自動回到本機示範模式。",
@@ -642,11 +642,11 @@ function migrateSocial(d){
     m.instagram="https://www.instagram.com/xie.ih/";
   if(/^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+$/.test(m.instagram))m.instagram+="/";
   if(!/^@?[A-Za-z0-9._]{2,30}$/.test(String(m.igHandle||"")))m.igHandle="@xie.ih";
-  d.igTitle=d.igTitle||"學習過程的實時後台";
-  d.igCtaLabel=d.igCtaLabel||"到 Instagram 看我卡關";
-  m.igNote=m.igNote||"卡關的過程用拍的最直接：凌晨三點的終端機畫面、寫到一半的白板、還有終於跑成功那張截圖。不精修，看得懂我在折騰什麼就好。";
+  d.igTitle=d.igTitle||"書桌以外的夜";
+  d.igCtaLabel=d.igCtaLabel||"到 Instagram 看我的夜";
+  m.igNote=m.igNote||"我 IG 上拍的都是夜裡拍的東西：維多利亞港的燈、別人施放的煙火、中秋那天的月亮。跟這個網站一樣，我醒著的時間多半在晚上——差的是，這裡放程式，那邊放光。是私人帳號，想看的按追蹤等我通過。";
   m.igStats=Array.isArray(m.igStats)&&m.igStats.length?m.igStats
-    :[["內容","專案進度 / debug 現場"],["頻率","一週 2–3 則"],["交流","私訊都看，一起自學的舉手"]];
+    :[["內容","夜景、煙火、生活片段"],["頻率","只有 2 則，還在累積"],["帳號","私人 · 按追蹤等我通過"]];
   return d;
 }
 
@@ -680,14 +680,13 @@ function renderHero(){
     `<span class="chip">狀態 <b>${esc(m.status)}</b></span>`
   ].join("");
   $("#hCta").innerHTML=`
-    <a class="btn btn-tg" href="${esc(safeUrl(m.instagram))}" target="_blank" rel="noopener">
-      ${IG_SVG}${esc(m.igHandle)}</a>
+    <a class="btn btn-tg" href="#instagram">${IG_SVG}${esc(m.igHandle)} · 私人帳號</a>
     <a class="btn btn-ghost" href="#projects">看看我做了什麼</a>
     <a class="btn btn-ghost" href="#wall">留句話</a>`;
   $("#igCta").innerHTML=`
     <a class="btn btn-tg" href="${esc(safeUrl(m.instagram))}" target="_blank" rel="noopener">
       ${IG_SVG}${esc(DATA.igCtaLabel)}</a>
-    <span class="chip" style="align-self:center">${esc(m.igHandle)}</span>`;
+    <span class="chip" style="align-self:center">${esc(m.igHandle)} · 私人帳號</span>`;
   $("#igStats").innerHTML=(m.igStats||[]).map(([k,v])=>
     `<div style="border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:rgba(8,5,3,.3)">
       <small style="font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--pencil);display:block">${esc(k)}</small>
