@@ -186,9 +186,9 @@ h2{font-family:var(--kai);font-weight:400;font-size:clamp(1.45rem,4.3vw,2.05rem)
   border:1px solid rgba(232,163,61,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 .bdg[data-off="1"]{opacity:.34;filter:grayscale(1)}
 .bdg[data-off="1"] i{border-style:dashed;color:var(--pencil)}
-/* ============ TG ============ */
-.tgbox{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
-.tgbox>div{flex:1;min-width:230px}
+/* ============ Instagram ============ */
+.igbox{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.igbox>div{flex:1;min-width:230px}
 /* ============ 留言牆 ============ */
 .form{display:grid;gap:11px;margin-bottom:20px}
 .row2{display:grid;gap:11px;grid-template-columns:1fr 1fr}
@@ -396,17 +396,17 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
     </div>
   </section>
 
-  <!-- Telegram -->
-  <section id="telegram">
-    <div class="glass rv tgbox">
+  <!-- Instagram -->
+  <section id="instagram">
+    <div class="glass rv igbox">
       <div>
-        <div class="kicker">06 · channel</div>
-        <h2 id="t-tg" style="font-size:clamp(1.3rem,4vw,1.75rem)"></h2>
+        <div class="kicker">06 · social</div>
+        <h2 id="t-ig" style="font-size:clamp(1.3rem,4vw,1.75rem)"></h2>
         <svg class="sq" viewBox="0 0 200 9" aria-hidden="true"><path d="M2 6 C 26 1, 48 8, 72 5 S 118 1, 142 6 S 180 8, 198 4"/></svg>
-        <p class="lead" id="l-tg" style="margin-top:12px"></p>
-        <div class="cta" style="margin-top:20px" id="tgCta"></div>
+        <p class="lead" id="l-ig" style="margin-top:12px"></p>
+        <div class="cta" style="margin-top:20px" id="igCta"></div>
       </div>
-      <div style="flex:none;display:grid;gap:9px;min-width:170px" id="tgStats"></div>
+      <div style="flex:none;display:grid;gap:9px;min-width:170px" id="igStats"></div>
     </div>
   </section>
 
@@ -508,17 +508,17 @@ const DEFAULT_DATA = {
     status:"正在學：Rust 與系統程式",
     location:"台灣 · 台中",
     grade:"高二生",
-    telegram:"https://t.me/",
-    channel:"我的學習筆記",
-    tgNote:"寫不下來的東西就打在這裡：debug 紀錄、卡關三天後解開的瞬間、還有偶爾抄錯的筆記。不長，但每週都有。",
-    tgStats:[["頻率","每週 2–3 篇"],["內容","debug 筆記 / 自學路線"],["回信","都看，慢慢回"]]
+    instagram:"https://www.instagram.com/xie.ih?stkn=MTlmMDI2Yno2YXEzaw==",
+    igHandle:"@xie.ih",
+    igNote:"卡關的過程用拍的最直接：凌晨三點的終端機畫面、寫到一半的白板、還有終於跑成功那張截圖。不精修，看得懂我在折騰什麼就好。",
+    igStats:[["內容","專案進度 / debug 現場"],["頻率","一週 2–3 則"],["交流","私訊都看，一起自學的舉手"]]
   },
   aboutTitle:"關於我",
   about:[
     "我是謝宜宏，台中的高二生。第一次寫程式是國中資訊課，跟著抄了一段老師螢幕上的程式碼，把 60 改成 600 就開心了一整堂課——那是我最早記得的「我可以讓東西聽話」的感覺。",
     "現在我一天能寫三個小時，假日可以整個下午埋在電腦前。沒有老師盯、沒有作業分數，支撐我的是很單純的一件事：<span class=\"mark\">東西跑起來的那一刻真的很爽。</span>",
     "我的目標是資訊工程相關科系。我知道自己缺很多：演算法沒系統地學過、英文文件讀得慢、資料庫完全空白。這個頁面就是為了讓這些缺口被看見，然後一個一個補掉。",
-    "如果你也是學生、也在自學，歡迎到我的 Telegram 頻道留言——同一個人卡關，比較不丟臉。"
+    "如果你也是學生、也在自學，歡迎在 Instagram 找我——同一個人卡關，比較不丟臉。"
   ],
   journeyTitle:"我的程式之路",
   journeyLead:"不是履歷，是時間軸。越近的越長，因為學得越多、忘得越快。",
@@ -569,8 +569,8 @@ const DEFAULT_DATA = {
     {label:"0→1",name:"從零做完專案",got:true},
     {label:"CS",name:"資工申請上線",got:false}
   ],
-  tgTitle:"學習筆記頻道",
-  tgCtaLabel:"訂閱 Telegram 頻道",
+  igTitle:"學習過程的實時後台",
+  igCtaLabel:"到 Instagram 看我卡關",
   wallTitle:"打氣牆",
   wallLead:"留句話，或者告訴我哪裡寫錯了。我都會看。",
   wallPrivacy:"留言會送到站長的後端，批准後才公開。站長關掉後端時，這裡自動回到本機示範模式。",
@@ -590,7 +590,7 @@ const RM=window.matchMedia("(prefers-reduced-motion: reduce)");
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function safeUrl(u){
   u=String(u||"").trim();
-  return /^(https?:|mailto:|tg:)/i.test(u)?u:"#";
+  return /^(https?:|mailto:)/i.test(u)?u:"#";
 }
 /* 白名單行內語法：**粗體** / `code` / [文字](連結) */
 function inline(s){
@@ -600,6 +600,10 @@ function inline(s){
   out=out.replace(/\*\*([^*]+)\*\*/g,"<strong style=\"font-weight:500\">$1</strong>");
   return out;
 }
+/* Instagram 線框圖示：圓角框＋鏡頭＋閃光燈點，沿用暖色 currentColor，不上品牌漸層 */
+const IG_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">'
+  +'<rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4"/>'
+  +'<circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>';
 /* 允許少量 HTML（關於我段落），其餘一律走 inline() */
 function rich(s){
   const t=String(s==null?"":s);
@@ -608,13 +612,30 @@ function rich(s){
     : inline(t);
 }
 function deep(o){return JSON.parse(JSON.stringify(o));}
+/* 舊版（Telegram）已發布內容的欄位名稱遷移：新欄位存在時以新欄位為準 */
+function migrateSocial(d){
+  const m=d.meta||{};
+  /* Telegram 時代的欄位一律丟棄：連結與文字都不能直接沿用 */
+  ["telegram","channel","tgNote","tgStats"].forEach(k=>{delete m[k];});
+  ["tgTitle","tgCtaLabel"].forEach(k=>{delete d[k];});
+  if(!/^https?:\/\/(www\.)?instagram\.com\//.test(String(m.instagram||"")))
+    m.instagram="https://www.instagram.com/xie.ih?stkn=MTlmMDI2Yno2YXEzaw==";
+  if(!/^@?[A-Za-z0-9._]{2,30}$/.test(String(m.igHandle||"")))m.igHandle="@xie.ih";
+  d.igTitle=d.igTitle||"學習過程的實時後台";
+  d.igCtaLabel=d.igCtaLabel||"到 Instagram 看我卡關";
+  m.igNote=m.igNote||"卡關的過程用拍的最直接：凌晨三點的終端機畫面、寫到一半的白板、還有終於跑成功那張截圖。不精修，看得懂我在折騰什麼就好。";
+  m.igStats=Array.isArray(m.igStats)&&m.igStats.length?m.igStats
+    :[["內容","專案進度 / debug 現場"],["頻率","一週 2–3 則"],["交流","私訊都看，一起自學的舉手"]];
+  return d;
+}
+
 /* 疊層優先序：檔案內建 DEFAULT_DATA < 站長發布的內容 < 本機未發布的草稿 */
 function load(){
   let d=deep(DEFAULT_DATA);
   try{const r=JSON.parse(localStorage.getItem(CDATA));
     if(r&&typeof r==="object"&&!Array.isArray(r)) d=Object.assign(d,r);}catch(e){}
   try{const s=JSON.parse(localStorage.getItem(KEY)); if(s) d=Object.assign(d,s);}catch(e){}
-  return d;
+  return migrateSocial(d);
 }
 let DATA=load();
 
@@ -623,7 +644,7 @@ function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");
 
 /* ============ 導覽 ============ */
 const SECTIONS=[["about","關於"],["journey","之路"],["skills","技能"],["projects","作品"],
-  ["goals","目標"],["telegram","頻道"],["wall","打氣牆"]];
+  ["goals","目標"],["instagram","動態"],["wall","打氣牆"]];
 $("#nav").innerHTML=SECTIONS.map(([id,l])=>`<a href="#${id}">${esc(l)}</a>`).join("");
 
 /* ============ 渲染 ============ */
@@ -638,17 +659,15 @@ function renderHero(){
     `<span class="chip">狀態 <b>${esc(m.status)}</b></span>`
   ].join("");
   $("#hCta").innerHTML=`
-    <a class="btn btn-tg" href="${esc(safeUrl(m.telegram))}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.8 19c-.2 1-.9 1.3-1.7.8l-3.1-2.3-3 2.3c-.4.3-.7.4-1 .4-.8 0-1.1-.6-.5-1.4l2.2-2.7-8-6.3c-.9-.6-.5-1.5.7-1.1l10.6-3.3c.9-.3 1.6.2 1.3 1.3"/></svg>
-      ${esc(m.channel)}</a>
+    <a class="btn btn-tg" href="${esc(safeUrl(m.instagram))}" target="_blank" rel="noopener">
+      ${IG_SVG}${esc(m.igHandle)}</a>
     <a class="btn btn-ghost" href="#projects">看看我做了什麼</a>
     <a class="btn btn-ghost" href="#wall">留句話</a>`;
-  $("#tgCta").innerHTML=`
-    <a class="btn btn-tg" href="${esc(safeUrl(m.telegram))}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.8 19c-.2 1-.9 1.3-1.7.8l-3.1-2.3-3 2.3c-.4.3-.7.4-1 .4-.8 0-1.1-.6-.5-1.4l2.2-2.7-8-6.3c-.9-.6-.5-1.5.7-1.1l10.6-3.3c.9-.3 1.6.2 1.3 1.3"/></svg>
-      ${esc(DATA.tgCtaLabel)}</a>
-    <span class="chip" style="align-self:center">${esc(m.telegram)}</span>`;
-  $("#tgStats").innerHTML=(m.tgStats||[]).map(([k,v])=>
+  $("#igCta").innerHTML=`
+    <a class="btn btn-tg" href="${esc(safeUrl(m.instagram))}" target="_blank" rel="noopener">
+      ${IG_SVG}${esc(DATA.igCtaLabel)}</a>
+    <span class="chip" style="align-self:center">${esc(m.igHandle)}</span>`;
+  $("#igStats").innerHTML=(m.igStats||[]).map(([k,v])=>
     `<div style="border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:rgba(8,5,3,.3)">
       <small style="font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--pencil);display:block">${esc(k)}</small>
       <span style="font-size:.86rem;color:var(--paper)">${esc(v)}</span></div>`).join("");
@@ -711,8 +730,8 @@ function renderGoals(){
       </div></div>`;}).join("");
   $("#badgeRow").innerHTML=DATA.badges.map(b=>
     `<div class="bdg" data-off="${b.got?0:1}" title="${esc(b.name)}"><i>${esc(b.label)}</i>${esc(b.name)}</div>`).join("");
-  $("#t-tg").textContent=DATA.tgTitle;
-  $("#l-tg").textContent=DATA.meta.tgNote;
+  $("#t-ig").textContent=DATA.igTitle;
+  $("#l-ig").textContent=DATA.meta.igNote;
 }
 function renderWallTitles(){
   $("#t-wall").textContent=DATA.wallTitle;
@@ -1022,8 +1041,8 @@ const SCHEMA=[
     ["meta.titleA","主標（上半）","text"],["meta.titleB","主標（琥珀底線那段）","text"],
     ["meta.sub","一句話自我介紹","area"],["meta.grade","身分","text"],["meta.location","地點","text"],
     ["meta.status","目前在學","text"]]},
-  {g:"Telegram",t:"fields",f:[["tgTitle","區塊標題","text"],["meta.channel","頻道名稱","text"],
-    ["meta.telegram","頻道連結","text"],["tgCtaLabel","按鈕文字","text"],["meta.tgNote","頻道說明","area"]]},
+  {g:"Instagram",t:"fields",f:[["igTitle","區塊標題","text"],["meta.igHandle","帳號顯示名","text"],
+    ["meta.instagram","帳號連結","text"],["igCtaLabel","按鈕文字","text"],["meta.igNote","區塊說明","area"]]},
   {g:"關於我",t:"list",p:"about",l:"段落（支援 **粗體** / `行內程式` / [連結](url)）",
     f:[["","段落","area"]]},
   {g:"我的程式之路",t:"list",p:"journey",l:"時間軸節點",
