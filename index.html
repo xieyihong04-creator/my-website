@@ -295,6 +295,61 @@ footer .fr{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;al
   font-family:var(--mono);font-size:.75rem;color:var(--amber-hi);transition:.35s;pointer-events:none;
   box-shadow:var(--shadow)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+/* ===== 倉鼠跑輪載入態（Hamster Loader）=====
+   From Uiverse.io by Nawsome — https://uiverse.io/Nawsome/wet-mayfly-23 (MIT)
+   移植規則：class / keyframes / 自訂屬性一律加 hm- 前綴，與主站樣式零衝突；
+   配色改琥珀 #e8a33d + 黃銅，原橘色 hsl(30,…)、粉色 hsl(0,90%,…) 與金屬灰 hsl(0,0%,…) 已全部換掉；
+   原件 font-size:14px、組件 12em，此處容器降為 6px 使 12em = 72px。 */
+.hm{--hm-dur:1s;position:relative;width:12em;height:12em;font-size:6px;margin:20px auto 8px}
+.hm .hm-wheel,.hm .hm-hamster,.hm .hm-hamster div,.hm .hm-spoke{position:absolute}
+.hm .hm-wheel,.hm .hm-spoke{border-radius:50%;top:0;left:0;width:100%;height:100%}
+.hm .hm-wheel{background:radial-gradient(100% 100% at center,rgba(154,138,114,0) 47.8%,#9a8a72 48%);z-index:2}
+.hm .hm-hamster{animation:hm-hamster var(--hm-dur) ease-in-out infinite;top:50%;left:calc(50% - 3.5em);
+  width:7em;height:3.75em;transform:rotate(4deg) translate(-0.8em,1.85em);transform-origin:50% 0;z-index:1}
+.hm .hm-head{animation:hm-head var(--hm-dur) ease-in-out infinite;background:#e8a33d;
+  border-radius:70% 30% 0 100% / 40% 25% 25% 60%;
+  box-shadow:0 -0.25em 0 #f5c177 inset,0.75em -1.55em 0 #f8dfb4 inset;
+  top:0;left:-2em;width:2.75em;height:2.5em;transform-origin:100% 50%}
+.hm .hm-ear{animation:hm-ear var(--hm-dur) ease-in-out infinite;background:#e8c79a;border-radius:50%;
+  box-shadow:-0.25em 0 #e8a33d inset;top:-0.25em;right:-0.25em;width:0.75em;height:0.75em;transform-origin:50% 75%}
+.hm .hm-eye{animation:hm-eye var(--hm-dur) linear infinite;background-color:#120e0b;border-radius:50%;
+  top:0.375em;left:1.25em;width:0.5em;height:0.5em}
+.hm .hm-nose{background:#caa24f;border-radius:35% 65% 85% 15% / 70% 50% 50% 30%;
+  top:0.75em;left:0;width:0.2em;height:0.25em}
+.hm .hm-body{animation:hm-body var(--hm-dur) ease-in-out infinite;background:#f8dfb4;
+  border-radius:50% 30% 50% 30% / 15% 60% 40% 40%;
+  box-shadow:0.1em 0.75em 0 #e8a33d inset,0.15em -0.5em 0 #f5c177 inset;
+  top:0.25em;left:2em;width:4.5em;height:3em;transform-origin:17% 50%;transform-style:preserve-3d}
+.hm .hm-limb--fr,.hm .hm-limb--fl{clip-path:polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
+  top:2em;left:0.5em;width:1em;height:1.5em;transform-origin:50% 0}
+.hm .hm-limb--fr{animation:hm-fr var(--hm-dur) linear infinite;background:linear-gradient(#f5c177 80%,#caa24f 80%);
+  transform:rotate(15deg) translateZ(-1px)}
+.hm .hm-limb--fl{animation:hm-fl var(--hm-dur) linear infinite;background:linear-gradient(#f8dfb4 80%,#e8c79a 80%);
+  transform:rotate(15deg)}
+.hm .hm-limb--br,.hm .hm-limb--bl{border-radius:0.75em 0.75em 0 0;
+  clip-path:polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
+  top:1em;left:2.8em;width:1.5em;height:2.5em;transform-origin:50% 30%}
+.hm .hm-limb--br{animation:hm-br var(--hm-dur) linear infinite;background:linear-gradient(#f5c177 90%,#caa24f 90%);
+  transform:rotate(-25deg) translateZ(-1px)}
+.hm .hm-limb--bl{animation:hm-bl var(--hm-dur) linear infinite;background:linear-gradient(#f8dfb4 90%,#e8c79a 90%);
+  transform:rotate(-25deg)}
+.hm .hm-tail{animation:hm-tail var(--hm-dur) linear infinite;background:#e8c79a;
+  border-radius:0.25em 50% 50% 0.25em;box-shadow:0 -0.2em 0 #caa24f inset;
+  top:1.5em;right:-0.5em;width:1em;height:0.5em;transform:rotate(30deg) translateZ(-1px);transform-origin:0.25em 0.25em}
+.hm .hm-spoke{animation:hm-spoke var(--hm-dur) linear infinite;
+  background:radial-gradient(100% 100% at center,#9a8a72 4.8%,rgba(154,138,114,0) 5%),
+    linear-gradient(rgba(178,162,136,0) 46.9%,#b2a288 47% 52.9%,rgba(178,162,136,0) 53%) 50% 50% / 99% 99% no-repeat}
+@keyframes hm-hamster{from,to{transform:rotate(4deg) translate(-0.8em,1.85em)}50%{transform:rotate(0) translate(-0.8em,1.85em)}}
+@keyframes hm-head{from,25%,50%,75%,to{transform:rotate(0)}12.5%,37.5%,62.5%,87.5%{transform:rotate(8deg)}}
+@keyframes hm-eye{from,90%,to{transform:scaleY(1)}95%{transform:scaleY(0)}}
+@keyframes hm-ear{from,25%,50%,75%,to{transform:rotate(0)}12.5%,37.5%,62.5%,87.5%{transform:rotate(12deg)}}
+@keyframes hm-body{from,25%,50%,75%,to{transform:rotate(0)}12.5%,37.5%,62.5%,87.5%{transform:rotate(-2deg)}}
+@keyframes hm-fr{from,25%,50%,75%,to{transform:rotate(50deg) translateZ(-1px)}12.5%,37.5%,62.5%,87.5%{transform:rotate(-30deg) translateZ(-1px)}}
+@keyframes hm-fl{from,25%,50%,75%,to{transform:rotate(-30deg)}12.5%,37.5%,62.5%,87.5%{transform:rotate(50deg)}}
+@keyframes hm-br{from,25%,50%,75%,to{transform:rotate(-60deg) translateZ(-1px)}12.5%,37.5%,62.5%,87.5%{transform:rotate(20deg) translateZ(-1px)}}
+@keyframes hm-bl{from,25%,50%,75%,to{transform:rotate(20deg)}12.5%,37.5%,62.5%,87.5%{transform:rotate(-60deg)}}
+@keyframes hm-tail{from,25%,50%,75%,to{transform:rotate(30deg) translateZ(-1px)}12.5%,37.5%,62.5%,87.5%{transform:rotate(10deg) translateZ(-1px)}}
+@keyframes hm-spoke{from{transform:rotate(0)}to{transform:rotate(-1turn)}}
 @media (max-width:720px){
   section{padding:58px 0 8px}
   .wrap{padding:0 16px}
@@ -310,9 +365,13 @@ footer .fr{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;al
   .sq path{stroke-dashoffset:0!important}
   .bar i{width:var(--w)!important}
   .cursor{animation:none}
+  /* 倉鼠跑輪：全域 .001s!important 對 infinite 動畫等於每秒千圈（頻閃）。
+     元件需自帶更高特异性的 animation:none!important 才能真正停下來。 */
+  .hm,.hm *,.hm *::before,.hm *::after{animation:none!important}
 }
 noscript div{padding:16px;text-align:center;color:var(--amber)}
 </style>
+<noscript><style>.hm,.hm-wait{display:none!important}</style></noscript>
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
@@ -459,7 +518,7 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
             <span class="hint" style="margin:0" id="gbCount">0 / 200</span>
           </div>
         </form>
-        <div id="gbList"></div>
+        <div id="gbList"><div class="hm" role="img" aria-label="Orange and tan hamster running in a metal wheel"><div class="hm-wheel"></div><div class="hm-hamster"><div class="hm-body"><div class="hm-head"><div class="hm-ear"></div><div class="hm-eye"></div><div class="hm-nose"></div></div><div class="hm-limb hm-limb--fr"></div><div class="hm-limb hm-limb--fl"></div><div class="hm-limb hm-limb--br"></div><div class="hm-limb hm-limb--bl"></div><div class="hm-tail"></div></div></div><div class="hm-spoke"></div></div><p class="hint hm-wait">載入中…</p></div>
         <p class="hint" id="gbPrivacy"></p>
       </div>
       <div class="glass rv" style="transition-delay:.1s">
@@ -497,6 +556,7 @@ noscript div{padding:16px;text-align:center;color:var(--amber)}
     <div class="grp" id="modBox" style="border-color:rgba(232,163,61,.35)">
       <label>留言審核 · moderation</label>
       <div id="modList"><p class="hint" style="margin:0">尚未載入。</p></div>
+      <noscript><div>需要 JavaScript 才能載入留言牆與審核面板，請開啟後重新整理。</div></noscript>
     </div>
     <div id="pBody"></div>
   </div>
@@ -905,6 +965,11 @@ function syncPubLabel(){
   el.textContent=(localStorage.getItem(CDATA)?(t?"上次更新："+t:""):"目前還沒發布過，訪客看到預設內容");
 }
 
+/* HM()：倉鼠跑輪載入態的唯一來源，HTML 靜態佔位與 JS 重繪都取用此字串，
+   驗證腳本會逐字比對兩邊是否一致（改一處必改兩處，故刻意只留一處可改）。 */
+const HM_MARKUP='<div class="hm" role="img" aria-label="Orange and tan hamster running in a metal wheel"><div class="hm-wheel"></div><div class="hm-hamster"><div class="hm-body"><div class="hm-head"><div class="hm-ear"></div><div class="hm-eye"></div><div class="hm-nose"></div></div><div class="hm-limb hm-limb--fr"></div><div class="hm-limb hm-limb--fl"></div><div class="hm-limb hm-limb--br"></div><div class="hm-limb hm-limb--bl"></div><div class="hm-tail"></div></div></div><div class="hm-spoke"></div></div><p class="hint hm-wait">載入中…</p>';
+function hmLoading(){return HM_MARKUP;}
+
 /* ============ 打氣牆 ============ */
 function fmt(ts){const d=new Date(ts),p=n=>String(n).padStart(2,"0");
   return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
@@ -931,7 +996,7 @@ async function loadWall(){
   }
 }
 function renderWall(){
-  if(WALL_CACHE===null){$("#gbList").innerHTML='<p class="hint">載入中…</p>';return;}
+  if(WALL_CACHE===null){$("#gbList").innerHTML=hmLoading();return;}
   const w=WALL_CACHE;
   $("#gbList").innerHTML=w.length?w.map((mm,i)=>`
     <div class="msg">${MODE==="demo"?`<button class="del" data-del="${i}" title="刪除這則（只刪本機）">del</button>`:""}
@@ -1197,7 +1262,7 @@ async function loadModeration(){
   if(!apiBase()){box.innerHTML=`<p class="hint" style="margin:0">示範模式沒有後端，不需批准。</p>`;return;}
   const tk=adminToken();
   if(!unlocked()||!tk){box.innerHTML=`<p class="hint" style="margin:0">尚未解鎖，點右上 🔒 輸入站長密碼後才能檢視與批准留言。</p>`;return;}
-  box.innerHTML=`<p class="hint" style="margin:0">載入中…</p>`;
+  box.innerHTML=hmLoading();
   try{
     const d=await api("/api/admin/list?session="+encodeURIComponent(tk));
     const p=d.pending||[], pub=d.published||[];
