@@ -1088,9 +1088,13 @@ $("#pollBox").addEventListener("click",async e=>{
     localStorage.setItem(POLL,JSON.stringify({opts:p.opts,voted:i}));renderPoll();return;
   }
   try{
-    await api("/api/poll",{method:"POST",body:{choice:i}});
+    const d=await api("/api/poll",{method:"POST",body:{choice:i}});
     await loadPoll();renderPoll();
-    if(POLL_STATE.voted!==i)toast("你之前已經投過一次了，以第一票為準");
+    /* counted 是後端的權威答案：false 代表這票被 INSERT OR IGNORE 掉了。
+       拿不到這個欄位（前端與後端部署時間差、或 CDN 還在發舊檔）時，
+       退回比對 mine 的舊做法，至少不會完全沒提示。 */
+    const dup=(d&&typeof d.counted==="boolean")?d.counted===false:(POLL_STATE&&POLL_STATE.voted!==i);
+    if(dup)toast("你之前已經投過一次了，以第一票為準");
   }catch(err){toast(err.message);}
 });
 async function initWallPoll(){await loadWall();renderWall();await loadPoll();renderPoll();}
